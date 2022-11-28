@@ -16,6 +16,31 @@ function handleRes(res){
     }
 }
 
+let isDebug = false
+
+export function setDebug(to) {
+    isDebug = to
+}
+
+function getUserHandler(data){
+    return new Promise(exec => {
+        xhrtools.GET(getAPIEndpoint() + "getUser", data).then(r => {
+            let json = handleRes(r)
+            if(json){
+                if(json.success){
+                    exec(json.result.UserData)
+                }
+                else
+                    throw new Error("Server Failed to getUser")
+            }
+            else
+                throw new Error("Failed to getUser")
+        }).catch(err => {
+            throw err
+        })
+    })
+}
+
 export const Users = {
     login: function (username, password, twofacode) {
         return new Promise(exec => {
@@ -27,11 +52,32 @@ export const Users = {
                 req.twofacode = twofacode
             xhrtools.POST(getAPIEndpoint() + "login", req).then(r => {
                 let json = handleRes(r)
-                if(json)
-                    exec(json)
+                if(json){
+                    if(json.success){
+                        exec(json.result)
+                    }
+                    else
+                        throw new Error("Server Failed to login")
+                }
                 else
                     throw new Error("Failed to login")
-            }).catch(err => throw err)
+            }).catch(err => {
+                throw err
+            })
+        })
+    },
+    isInviteCodeRequired: function () {
+        return new Promise(exec => {
+            if(isDebug)
+                exec(true)
+            else
+                xhrtools.GET(getAPIEndpoint() + "isInviteCodeRequired").then(r => {
+                    let json = handleRes(r)
+                    if(json)
+                        exec(json.result.inviteCodeRequired)
+                    else
+                        exec(null)
+                }).catch(err => exec(null))
         })
     },
     createUser: function(username, password, email, inviteCode) {
@@ -45,11 +91,18 @@ export const Users = {
                 req.inviteCode = inviteCode
             xhrtools.POST(getAPIEndpoint() + "createUser", req).then(r => {
                 let json = handleRes(r)
-                if(json)
-                    exec(json)
+                if(json){
+                    if(json.success){
+                        exec(json.results.UserData)
+                    }
+                    else
+                        throw new Error("Server Failed to createAccount")
+                }
                 else
                     throw new Error("Failed to createAccount")
-            }).catch(err => throw err)
+            }).catch(err => {
+                throw err
+            })
         })
     },
     doesUserExist: function (userid) {
@@ -59,11 +112,38 @@ export const Users = {
             }
             xhrtools.POST(getAPIEndpoint() + "doesUserExist", req).then(r => {
                 let json = handleRes(r)
-                if(json)
-                    exec(json)
+                if(json){
+                    if(json.success){
+                        exec(json.results.doesUserExist)
+                    }
+                    else
+                        throw new Error("Server Failed to doesUserExist")
+                }
                 else
                     throw new Error("Failed to doesUserExist")
-            }).catch(err => throw err)
+            }).catch(err => {
+                throw err
+            })
+        })
+    },
+    getUserFromUserId: function (userid, token) {
+        return new Promise(exec => {
+            let req = {
+                userid: userid
+            }
+            if(token)
+                req.tokenContent = token.content
+            getUserHandler(req).then(userdata => exec(userdata)).catch(err => {throw err})
+        })
+    },
+    getUserFromUsername: function (username, token) {
+        return new Promise(exec => {
+            let req = {
+                username: username
+            }
+            if(token)
+                req.tokenContent = token.content
+            getUserHandler(req).then(userdata => exec(userdata)).catch(err => {throw err})
         })
     },
     Rank: {
