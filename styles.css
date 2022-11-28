@@ -1,0 +1,47 @@
+a{
+    font-family: Arial, serif;
+}
+
+p{
+    font-family: Arial, serif;
+}
+b{
+    font-family: Arial, serif;
+}
+
+/*index*/
+
+.banner-left{
+    width: auto;
+    height: auto;
+    position: fixed;
+    top: -10px;
+    left: -10px;
+}
+
+.index-card{
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    position: absolute;
+    top: 50px;
+    right: 50px;
+    width: 40%;
+    height: 90%;
+    /*background-color: #1d1d1d;*/
+    /*background-image: linear-gradient(to bottom right, dodgerblue, lightgray);*/
+    border-radius: 5px;
+}
+
+.index-card:hover{
+    box-shadow: 0 16px 128px 0 rgba(0,0,0,0.9);
+}
+
+.index-card-container{
+    padding: 2px 16px;
+    text-align: center;
+}
+
+.index-card-container>*{
+    color: white;
+    text-align: center;
+}
