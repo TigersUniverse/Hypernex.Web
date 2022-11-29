@@ -9,6 +9,7 @@ function getAPIEndpoint(){
 
 function handleRes(res){
     try{
+        console.log(res.toString())
         return JSON.parse(res.toString())
     }catch (err) {
         console.error(err)

@@ -30,6 +30,21 @@ CreateAnAccount.addEventListener("click", () => {
     SignupCard.hidden = false
 })
 
+let isLoggingIn = false
+LoginButton.addEventListener("click", () => {
+    if(!isLoggingIn){
+        isLoggingIn = true
+        HypernexAPI.Users.login(LoginUsername.value, LoginPassword.value, Login2FA.value).then(userdata => {
+            if(userdata){
+
+            }
+            isLoggingIn = false
+        }).catch(err => {
+            isLoggingIn = false
+        })
+    }
+})
+
 // Init
 
 HypernexAPI.setDebug(true)

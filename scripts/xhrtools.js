@@ -8,7 +8,7 @@ export function POST(url, data){
             if (xhr.readyState === 4) {
                 resolve(xhr.responseText)
             }};
-        xhr.send(data)
+        xhr.send(JSON.stringify(data))
     })
 }
 
