@@ -28,11 +28,11 @@
         </form>
         <button class="pure-button pure-button-primary" style="margin: 0 auto;" id="login-button">Login</button>
         <p></p>
-        <a id="create-account">Or Create an Account</a>
+        <a id="create-account" class="onClickHoverIcon">Or Create an Account</a>
     </div>
 </div>
 
-<div class="index-card" style="background-image: linear-gradient(to bottom left, red, white);" id="signup-card">
+<div class="index-card" style="background-image: linear-gradient(to bottom left, red, white);" id="signup-card" hidden>
     <div class="index-card-container">
         <h4 class="outline-text"><b style="font-size: 32px;">Hypernex</b></h4>
         <form class="pure-form">
@@ -43,15 +43,41 @@
             <label><input type="password" style="width: 75%; text-align: center;" class=".uk-input" placeholder="Password" id="signup-password-input"></label>
             <p></p>
             <label><input style="width: 75%; text-align: center;" class=".uk-input" placeholder="Invite Code" id="signup-invitecode-input"></label>
+            <p></p>
+            <label class="pure-checkbox"><input type="checkbox" id="signup-13-check"> I agree that I am at least 13 Years of Age</label>
+            <p></p>
+            <!--TODO: Link a ToS and Privacy Policy Page-->
+            <label class="pure-checkbox"><input type="checkbox" id="signup-tos-check"> I agree to the <a class="onClickHoverIcon">Terms and Conditions</a> and the <a class="onClickHoverIcon">Privacy Policy</a></label>
         </form>
         <p></p>
         <button class="pure-button pure-button-primary" style="margin: 0 auto;" id="signup-button">Signup</button>
         <p></p>
-        <a id="login-existing-account">Or Login to an Existing Account</a>
+        <a id="login-existing-account" class="onClickHoverIcon">Or Login to an Existing Account</a>
+    </div>
+</div>
+
+<div class="index-card" style="background-color: white;" id="status-card" hidden>
+    <div class="index-card-container">
+        <h4><b style="font-size: 32px; color: black;" id="status-title">You have been Banned</b></h4>
+        <div class="status-box-c" id="status-box" style="width: 100%; border: 1px solid black; min-height: 550px; max-height: 550px; overflow-y: auto;">
+            <p style="color: black" id="status-begin-date">Date Banned: </p>
+            <p style="color: black" id="status-end-date">Length of Ban: </p>
+            <p style="color: black; word-wrap: break-word;" id="status-reason">Ban Reason: </p>
+            <p style="color: black; word-wrap: break-word;" id="status-description">Ban Description: </p>
+        </div>
+        <p></p>
+        <button class="pure-button pure-button-primary" style="margin: 0 auto;" id="status-confirm-button">OK</button>
+        <p></p>
     </div>
 </div>
 
 <!--Scripts-->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    window.sendSweetAlert = function(params){
+        Swal.fire(params)
+    }
+</script>
 <script type="module" src="scripts/web/index.js"></script>
 </body>
 </html>

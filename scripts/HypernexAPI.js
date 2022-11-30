@@ -24,27 +24,27 @@ export function setDebug(to) {
 }
 
 function getUserHandler(data){
-    return new Promise(exec => {
-        xhrtools.GET(getAPIEndpoint() + "getUser", data).then(r => {
+    return new Promise((exec, reject) => {
+        xhrtools.POST(getAPIEndpoint() + "getUser", data).then(r => {
             let json = handleRes(r)
             if(json){
                 if(json.success){
                     exec(json.result.UserData)
                 }
                 else
-                    throw new Error("Server Failed to getUser")
+                    reject(new Error("Server Failed to getUser"))
             }
             else
-                throw new Error("Failed to getUser")
+                reject(new Error("Failed to getUser"))
         }).catch(err => {
-            throw err
+            reject(err)
         })
     })
 }
 
 export const Users = {
     login: function (username, password, twofacode) {
-        return new Promise(exec => {
+        return new Promise((exec, reject) => {
             let req = {
                 username: username,
                 password: password
@@ -58,10 +58,10 @@ export const Users = {
                         exec(json.result)
                     }
                     else
-                        throw new Error("Server Failed to login")
+                        reject(new Error("Server Failed to login"))
                 }
                 else
-                    throw new Error("Failed to login")
+                    reject(new Error("Failed to login"))
             }).catch(err => {
                 throw err
             })
@@ -72,7 +72,7 @@ export const Users = {
             if(isDebug)
                 exec(true)
             else
-                xhrtools.GET(getAPIEndpoint() + "isInviteCodeRequired").then(r => {
+                xhrtools.POST(getAPIEndpoint() + "isInviteCodeRequired").then(r => {
                     let json = handleRes(r)
                     if(json)
                         exec(json.result.inviteCodeRequired)
@@ -82,7 +82,7 @@ export const Users = {
         })
     },
     createUser: function(username, password, email, inviteCode) {
-        return new Promise(exec => {
+        return new Promise((exec, reject) => {
             let req = {
                 username: username,
                 password: password,
@@ -94,20 +94,20 @@ export const Users = {
                 let json = handleRes(r)
                 if(json){
                     if(json.success){
-                        exec(json.results.UserData)
+                        exec(json.result.UserData)
                     }
                     else
-                        throw new Error("Server Failed to createAccount")
+                        reject(new Error("Server Failed to createAccount"))
                 }
                 else
-                    throw new Error("Failed to createAccount")
+                    reject(new Error("Failed to createAccount"))
             }).catch(err => {
-                throw err
+                reject(err)
             })
         })
     },
     doesUserExist: function (userid) {
-        return new Promise(exec => {
+        return new Promise((exec, reject) => {
             let req = {
                 userid: userid
             }
@@ -115,36 +115,36 @@ export const Users = {
                 let json = handleRes(r)
                 if(json){
                     if(json.success){
-                        exec(json.results.doesUserExist)
+                        exec(json.result.doesUserExist)
                     }
                     else
-                        throw new Error("Server Failed to doesUserExist")
+                        reject(new Error("Server Failed to doesUserExist"))
                 }
                 else
-                    throw new Error("Failed to doesUserExist")
+                    reject(new Error("Failed to doesUserExist"))
             }).catch(err => {
-                throw err
+                reject(err)
             })
         })
     },
     getUserFromUserId: function (userid, token) {
-        return new Promise(exec => {
+        return new Promise((exec, reject) => {
             let req = {
                 userid: userid
             }
             if(token)
                 req.tokenContent = token.content
-            getUserHandler(req).then(userdata => exec(userdata)).catch(err => {throw err})
+            getUserHandler(req).then(userdata => exec(userdata)).catch(err => reject(err))
         })
     },
     getUserFromUsername: function (username, token) {
-        return new Promise(exec => {
+        return new Promise((exec, reject) => {
             let req = {
                 username: username
             }
             if(token)
                 req.tokenContent = token.content
-            getUserHandler(req).then(userdata => exec(userdata)).catch(err => {throw err})
+            getUserHandler(req).then(userdata => exec(userdata)).catch(err => reject(err))
         })
     },
     Rank: {

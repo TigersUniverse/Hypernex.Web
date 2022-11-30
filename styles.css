@@ -13,6 +13,14 @@ b{
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 
+.onClickHoverIcon{
+    text-decoration: underline;
+}
+
+.onClickHoverIcon:hover{
+    cursor: pointer;
+}
+
 /*index*/
 
 .banner-left{
@@ -27,12 +35,13 @@ b{
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: 0.3s;
     position: absolute;
-    top: 50px;
-    right: 50px;
-    width: 40%;
-    height: 90%;
-    /*background-color: #1d1d1d;*/
-    /*background-image: linear-gradient(to bottom right, dodgerblue, lightgray);*/
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    width: 600px;
+    height: 700px;
     border-radius: 5px;
 }
 
@@ -48,4 +57,8 @@ b{
 .index-card-container>*{
     color: white;
     text-align: center;
+}
+
+.status-box-c>*{
+    text-align: left;
 }
