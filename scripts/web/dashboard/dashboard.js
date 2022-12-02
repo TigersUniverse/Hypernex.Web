@@ -1,7 +1,16 @@
-import * as storage from '../../storage.js'
+/*import * as webtools from '../../webtools.js'*/
 
-let userString = storage.getValue("currentUser")
-if(!userString)
-    window.location = "index.html"
-let user = JSON.parse(userString)
-document.getElementById("usn").innerHTML = "Howdy, " + user.Username
+/*
+webtools.checkLocalUserCache().then(r => {
+    if(r !== undefined){
+        let userdata = r.userdata
+        let token = r.token
+    }
+    else
+        window.location = "index.html"
+})
+ */
+
+function renderPage(userdata){
+
+}

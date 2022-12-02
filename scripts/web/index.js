@@ -65,6 +65,7 @@ function handleLoginResult(result){
                 let token = result.token
                 HypernexAPI.Users.getUserFromUsername(LoginUsername.value, token).then(user => {
                     if(user){
+                        storage.setValue("currentToken", JSON.stringify(token))
                         storage.setValue("currentUser", JSON.stringify(user))
                         window.location = "/dashboard.html"
                     }
@@ -111,6 +112,7 @@ LoginButton.addEventListener("click", () => {
                     let token = result.token
                     HypernexAPI.Users.getUserFromUsername(LoginUsername.value, token).then(user => {
                         if(user){
+                            storage.setValue("currentToken", JSON.stringify(token))
                             storage.setValue("currentUser", JSON.stringify(user))
                             window.location = "/dashboard.html"
                         }
@@ -174,6 +176,7 @@ SignupButton.addEventListener("click", () => {
             return
         }
         HypernexAPI.Users.createUser(SignupUsername.value, SignupPassword.value, SignupEmail.value, SignupInviteCode.value).then(user => {
+            storage.setValue("currentToken", JSON.stringify(user.AccountTokens[0]))
             storage.setValue("currentUser", JSON.stringify(user))
             window.location = "dashboard.html"
         }).catch(err => {

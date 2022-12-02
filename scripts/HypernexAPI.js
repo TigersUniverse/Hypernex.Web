@@ -147,6 +147,289 @@ export const Users = {
             getUserHandler(req).then(userdata => exec(userdata)).catch(err => reject(err))
         })
     },
+    isUsernameValidToken: function (username, tokenContent) {
+        return new Promise((exec, reject) => {
+            let req = {
+                username: username,
+                tokenContent: tokenContent
+            }
+            xhrtools.POST(getAPIEndpoint() + "isValidToken", req).then(r => {
+                let json = handleRes(r)
+                if(json && json.success)
+                    exec(json.result.isValidToken)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    isUserIdValidToken: function (userid, tokenContent) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent
+            }
+            xhrtools.POST(getAPIEndpoint() + "isValidToken", req).then(r => {
+                let json = handleRes(r)
+                if(json && json.success)
+                    exec(json.result.isValidToken)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    sendVerificationEmail: function (userid, tokenContent) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent
+            }
+            xhrtools.POST(getAPIEndpoint() + "sendVerificationEmail", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    verifyEmailToken: function (userid, tokenContent, emailToken) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                emailToken: emailToken
+            }
+            xhrtools.POST(getAPIEndpoint() + "verifyEmailToken", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    changeEmail: function (userid, tokenContent, newEmail) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                newEmail: newEmail
+            }
+            xhrtools.POST(getAPIEndpoint() + "changeEmail", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    requestPasswordReset: function (email) {
+        return new Promise((exec, reject) => {
+            let req = {
+                email: email
+            }
+            xhrtools.POST(getAPIEndpoint() + "requestPasswordReset", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    resetPassword: function (userid, passwordResetContent, newPassword) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                passwordResetContent: passwordResetContent,
+                newPassword: newPassword
+            }
+            xhrtools.POST(getAPIEndpoint() + "resetPassword", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    updateBio: function (userid, tokenContent, bio) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                bio: bio
+            }
+            xhrtools.POST(getAPIEndpoint() + "updateBio", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    blockUser: function (userid, tokenContent, targetUserId) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                targetUserId: targetUserId
+            }
+            xhrtools.POST(getAPIEndpoint() + "blockUser", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    unblockUser: function (userid, tokenContent, targetUserId) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                targetUserId: targetUserId
+            }
+            xhrtools.POST(getAPIEndpoint() + "unblockUser", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    followUser: function (userid, tokenContent, targetUserId) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                targetUserId: targetUserId
+            }
+            xhrtools.POST(getAPIEndpoint() + "followUser", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    unfollowUser: function (userid, tokenContent, targetUserId) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                targetUserId: targetUserId
+            }
+            xhrtools.POST(getAPIEndpoint() + "unfollowUser", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    sendFriendRequest: function (userid, tokenContent, targetUserId) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                targetUserId: targetUserId
+            }
+            xhrtools.POST(getAPIEndpoint() + "sendFriendRequest", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    acceptFriendRequest: function (userid, tokenContent, targetUserId) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                targetUserId: targetUserId
+            }
+            xhrtools.POST(getAPIEndpoint() + "acceptFriendRequest", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    declineFriendRequest: function (userid, tokenContent, targetUserId) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                targetUserId: targetUserId
+            }
+            xhrtools.POST(getAPIEndpoint() + "declineFriendRequest", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    removeFriend: function (userid, tokenContent, targetUserId) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                targetUserId: targetUserId
+            }
+            xhrtools.POST(getAPIEndpoint() + "removeFriend", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
     Rank: {
         Guest: 0,
         Incompleter: 1,

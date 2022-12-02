@@ -62,3 +62,36 @@ b{
 .status-box-c>*{
     text-align: left;
 }
+
+/*dashboard*/
+
+.light-theme{
+    color: black;
+    background-color: ghostwhite;
+}
+
+.dark-theme{
+    color: ghostwhite;
+    background-color: #191919;
+}
+
+.dark-theme-secondary{
+    background-color: #0a0a0a;
+}
+
+.top-navigation-bar{
+    position: fixed;
+    min-width: 100%;
+    width: 100%;
+    min-height: 60px;
+    max-height: 60px;
+    box-shadow: 0 8px 8px 0 rgba(0,0,0,0.9);
+}
+
+.top-navigation-bar>*{
+    vertical-align: text-bottom;
+}
+
+.align-right{
+    float: right;
+}
