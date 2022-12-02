@@ -45,3 +45,35 @@ export function getCachedToken() {
     }
     return JSON.parse(tokenString)
 }
+
+function resetTheme(){
+    const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
+    let themeInt
+    if (darkThemeMq.matches) {
+        themeInt = Themes.Dark
+    }
+    else {
+        themeInt = Themes.Light
+    }
+    storage.setValue("theme", themeInt)
+    return themeInt
+}
+
+export function getTheme(){
+    let themeInt = storage.getValue("theme")
+    if(!themeInt)
+        themeInt = resetTheme()
+    if(themeInt >= 0 && themeInt <= 1)
+        return themeInt
+    else
+        return resetTheme()
+}
+
+export function setThemeOnPage(theme){
+    
+}
+
+export const Themes = {
+    Dark: 0,
+    Light: 1
+}
