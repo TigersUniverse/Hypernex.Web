@@ -70,9 +70,17 @@ b{
     background-color: ghostwhite;
 }
 
+.light-text{
+    color: black;
+}
+
 .dark-theme{
     color: ghostwhite;
     background-color: #191919;
+}
+
+.dark-text{
+    color: ghostwhite;
 }
 
 .dark-theme-secondary{
@@ -89,9 +97,25 @@ b{
 }
 
 .top-navigation-bar>*{
-    vertical-align: text-bottom;
+    padding-top: 1.5%;
+}
+
+.align-left{
+    float: left;
 }
 
 .align-right{
     float: right;
+}
+
+.info-bubble{
+    background-color: rgba(67, 185, 255, 0.5);
+    border-radius: 5px;
+    outline: #257eff solid 2px;
+    overflow-y: auto;
+    word-wrap: break-word;
+}
+
+.info-bubble>*{
+    text-align: center;
 }
