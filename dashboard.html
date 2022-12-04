@@ -9,14 +9,39 @@
 </head>
 <body class="dark-theme">
 
-<div class="warn-bubble">
-    <img src="media/warning.png" alt="warning" style="max-width: 19%; left: 0;">
-    <a class="dark-text">This is a warning bubble!</a>
+<!--Bubble Templates-->
+<div id="infoBubble" class="bubble info-bubble" hidden>
+    <img src="media/info.png" alt="info" style="max-width: 100px; left: 0;">
+    <div style="position: absolute; top: 0; word-break: break-word;">
+        <b style="font-size: 32px">Info</b>
+        <p></p>
+        <a class="dark-text">Hello World! This is an info bubble to let you know that something is occurring that may be worth noting!</a>
+    </div>
 </div>
 
+<div id="warningBubble" class="bubble warn-bubble" hidden>
+    <img src="media/warning.png" alt="warning" style="max-width: 100px; left: 0;">
+    <div style="position: absolute; top: 0; word-break: break-word;">
+        <b style="font-size: 32px">Warning</b>
+        <p></p>
+        <a class="dark-text">Hello World! This is a warning bubble to let you know something worth noting is happening that may affect your experience!</a>
+    </div>
+</div>
+
+<div id="errorBubble" class="bubble error-bubble" hidden>
+    <img src="media/error.png" alt="error" style="max-width: 100px; left: 0;">
+    <div style="position: absolute; top: 0; word-break: break-word;">
+        <b style="font-size: 32px">Error</b>
+        <p></p>
+        <a class="dark-text">Hello World! This is a error bubble to let you know something is not working properly and will affect performance!</a>
+    </div>
+</div>
+<!--End Bubble Templates-->
+
 <div class="top-navigation-bar dark-theme-secondary">
-    <b class="align-left dark-text" style="font-size: 32px; padding-top: 0.8%">Hypernex</b>
-    <a id="hiusn" class="align-right dark-text">Howdy, </a>
+    <b class="align-left dark-text" style="font-size: 32px; padding-top: 0.5%">Hypernex</b>
+    <button class="error-button pure-button align-right" style="top: 15px" id="signoutButton">Sign Out</button>
+    <a id="hiusn" class="align-right dark-text" style="top: 23px; right: 25px"></a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>

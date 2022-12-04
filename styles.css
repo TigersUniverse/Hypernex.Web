@@ -1,12 +1,22 @@
+@font-face {
+    font-family: "Oxygen";
+    src: url("./fonts/Oxygen/Oxygen-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Lexend";
+    src: url("./fonts/Lexend/Lexend-VariableFont_wght.ttf");
+}
+
 a{
-    font-family: Arial, serif;
+    font-family: Lexend, Arial, sans-serif;
 }
 
 p{
-    font-family: Arial, serif;
+    font-family: Lexend, Arial, sans-serif;
 }
 b{
-    font-family: Arial, serif;
+    font-family: Lexend, Arial, sans-serif;
 }
 
 .outline-text{
@@ -97,49 +107,57 @@ b{
     box-shadow: 0 8px 8px 0 rgba(0,0,0,0.9);
 }
 
-.top-navigation-bar>*{
-    padding-top: 1.5%;
-}
-
 .align-left{
+    position: relative;
     float: left;
+    left: 15px;
 }
 
 .align-right{
+    position: relative;
     float: right;
+    right: 15px;
+}
+
+.bubble {
+    border-radius: 7px;
+    position: relative;
+    width: 50%;
+    height: 100px;
+    left: 25%;
+    top: 100px
+}
+
+.bubble>*{
+    text-align: left;
+    left: 105px;
+    word-break: break-word;
+    overflow-y: auto;
+    display: inline-block;
+    max-height: 100px;
+}
+
+.bubble>*::-webkit-scrollbar{
+    display: none;
 }
 
 .info-bubble{
-    background-color: rgba(67, 185, 255, 0.5);
-    border-radius: 5px;
-    outline: #257eff solid 2px;
-    overflow-y: auto;
-    word-wrap: break-word;
-    position: relative;
-    max-height: 20%;
-    width: 50%;
-    left: 25%;
-    top: 100px
-}
-
-.info-bubble>*{
-    text-align: center;
+    background-color: rgb(33, 150, 243);
+    /*outline: #257eff solid 2px;*/
 }
 
 .warn-bubble{
-    background-color: rgba(252, 188, 40, 0.5);
-    border-radius: 5px;
-    outline: #fc9528 solid 2px;
-    overflow-y: auto;
-    word-wrap: break-word;
-    position: relative;
-    max-height: 20%;
-    width: 50%;
-    left: 25%;
-    top: 100px
+    background-color: rgb(255, 183, 0);
+    /*outline: #fc9528 solid 2px;*/
 }
 
-.warn-bubble>*{
-    text-align: center;
-    left: 20%;
+.error-bubble{
+    background-color: #f52a3a;
+    /*outline: #fc9528 solid 2px;*/
+}
+
+/*Why does PureCSS make me use !important?*/
+.error-button{
+    background-color: #f52a3a !important;
+    color: ghostwhite !important;
 }

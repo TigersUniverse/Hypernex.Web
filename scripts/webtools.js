@@ -1,4 +1,4 @@
-import * as HypernexAPI from './HypernexAPI'
+/*import * as HypernexAPI from './HypernexAPI'*/
 import * as storage from './storage.js'
 
 function removeCache(){
@@ -46,6 +46,16 @@ export function getCachedToken() {
     return JSON.parse(tokenString)
 }
 
+function getThemeNameByThemeId(themeId) {
+    switch (themeId) {
+        case 0:
+            return "Dark"
+        case 1:
+            return "Light"
+    }
+    return undefined
+}
+
 function resetTheme(){
     const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
     let themeInt
@@ -70,10 +80,45 @@ export function getTheme(){
 }
 
 export function setThemeOnPage(theme){
-    
+    let otn = getThemeNameByThemeId(getTheme())
+    if(otn === undefined)
+        return
+    let tn = getThemeNameByThemeId(theme)
+
+}
+
+export function createDashboardNotice(type, heading, description){
+    let id
+    switch (type){
+        case Notices.Info:
+            id = "infoBubble"
+            break
+        case Notices.Warning:
+            id = "warningBubble"
+            break
+        case Notices.Error:
+            id = "errorBubble"
+            break
+        default:
+            return
+    }
+    let bubble = document.getElementById(id).cloneNode(true)
+    bubble.children[1].children[0].innerHTML = heading
+    bubble.children[1].children[2].innerHTML = description
+    bubble.hidden = false
+    document.body.insertBefore(bubble, document.body.children[0])
+    bubble.after(document.createElement("p"))
+    return bubble
 }
 
 export const Themes = {
     Dark: 0,
-    Light: 1
+    Light: 1,
+    Pink: 2
+}
+
+export const Notices = {
+    Info: 0,
+    Warning: 1,
+    Error: 2
 }
