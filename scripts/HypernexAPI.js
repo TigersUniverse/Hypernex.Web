@@ -67,6 +67,24 @@ export const Users = {
             })
         })
     },
+    logout: function (userid, tokenContent) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent
+            }
+            xhrtools.POST(getAPIEndpoint() + "logout", req).then(r => {
+                let json = handleRes(r)
+                if(json){
+                    exec(json.success)
+                }
+                else
+                    reject(new Error("Failed to logout"))
+            }).catch(err => {
+                throw err
+            })
+        })
+    },
     isInviteCodeRequired: function () {
         return new Promise(exec => {
             if(isDebug)
