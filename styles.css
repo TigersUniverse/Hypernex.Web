@@ -161,3 +161,37 @@ b{
     background-color: #f52a3a !important;
     color: ghostwhite !important;
 }
+
+.centered-list-main{
+    position: absolute;
+    min-width: 75%;
+    max-width: 75%;
+    min-height: 80%;
+    display: block;
+    margin: auto;
+    top: 100px;
+    left: 0;
+    right: 0;
+}
+
+.friend-list-card{
+    list-style-type: none;
+    display: flex;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.friend-list-card > li {
+    max-width: 400px;
+    max-height: 225px;
+    cursor: pointer;
+    padding-left: 5px;
+}
+
+.nav-button {
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-family: Lexend, Oxygen, Arial, sans-serif;
+    cursor: pointer;
+}

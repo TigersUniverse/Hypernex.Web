@@ -472,3 +472,9 @@ export const Users = {
         Correct: 4
     }
 }
+
+export const File = {
+    Upload: function (userid, fileLocation) {
+
+    }
+}

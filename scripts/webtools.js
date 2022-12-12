@@ -87,30 +87,6 @@ export function setThemeOnPage(theme){
 
 }
 
-export function createDashboardNotice(type, heading, description){
-    let id
-    switch (type){
-        case Notices.Info:
-            id = "infoBubble"
-            break
-        case Notices.Warning:
-            id = "warningBubble"
-            break
-        case Notices.Error:
-            id = "errorBubble"
-            break
-        default:
-            return
-    }
-    let bubble = document.getElementById(id).cloneNode(true)
-    bubble.children[1].children[0].innerHTML = heading
-    bubble.children[1].children[2].innerHTML = description
-    bubble.hidden = false
-    document.body.insertBefore(bubble, document.body.children[0])
-    bubble.after(document.createElement("p"))
-    return bubble
-}
-
 export const Themes = {
     Dark: 0,
     Light: 1,
