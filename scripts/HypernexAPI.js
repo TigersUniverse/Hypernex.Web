@@ -244,6 +244,58 @@ export const Users = {
             })
         })
     },
+    enable2fa: function (userid, tokenContent) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent
+            }
+            xhrtools.POST(getAPIEndpoint() + "enable2fa", req).then(r => {
+                let json = handleRes(r)
+                if(json && json.success)
+                    exec(json.result.otpauth_url)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    verify2fa: function (userid, tokenContent, code) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                code: code
+            }
+            xhrtools.POST(getAPIEndpoint() + "verify2fa", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    remove2fa: function (userid, tokenContent) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent
+            }
+            xhrtools.POST(getAPIEndpoint() + "remove2fa", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
     requestPasswordReset: function (email) {
         return new Promise((exec, reject) => {
             let req = {

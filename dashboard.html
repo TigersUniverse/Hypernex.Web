@@ -80,6 +80,13 @@
     <label><input type="text" class="dark-theme-secondary dark-text no-input-border" id="confirm-new-password"></label>
     <p></p>
     <button class="pure-button pure-button-primary" id="set-password">Set New Password</button>
+    <p></p>
+    <a class="dark-text" style="font-size: 22px">2FA</a>
+    <p></p>
+    <a class="dark-text" id="2fa-status-text">2FA Status: Not Enabled</a>
+    <button class="pure-button pure-button-primary" id="enter-2fa-wizard">Enable 2FA</button>
+    <p></p>
+    <button class="pure-button error-button" id="remove-2fa">Remove 2FA</button>
 </div>
 
 <div class="top-navigation-bar dark-theme-secondary">
@@ -90,11 +97,43 @@
     <a id="hiusn" class="align-right dark-text" style="top: 23px; right: 25px"></a>
 </div>
 
+<div class="fixed-popup" id="qrcode-popup" hidden>
+    <div class="fixed-popup-card dark-theme">
+        <button style="position: relative; top: 5px; right: 5px; float: right; border-style: none; background-color: rgba(0, 0, 0, 0); cursor: pointer; color: #525252;">X</button>
+        <p></p>
+        <h4><b class="dark-text" style="font-size: 32px">Enable 2FA Wizard</b></h4>
+        <p></p>
+        <a class="dark-text" style="font-size: 22px">Step 1</a>
+        <p></p>
+        <a class="dark-text">Open an authenticator app, such as Google Authenticator or Authy</a>
+        <p></p>
+        <a class="dark-text" style="font-size: 22px">Step 2</a>
+        <p></p>
+        <a class="dark-text">Scan the QRCode Below</a>
+        <p></p>
+        <div id="qrcode" style="width: 128px; height: 128px; position: relative; margin: 0 auto"></div>
+        <p></p>
+        <a style="font-size: 11px; color: #525252" href="https://fortnite.lol" target="_blank" rel="noopener" id="qrcode-url">https://fortnite.lol</a>
+        <p></p>
+        <a class="dark-text" style="font-size: 22px">Step 3</a>
+        <p></p>
+        <a class="dark-text">Enter the 2FA Code below, and verify!</a>
+        <p></p>
+        <label><input type="text" class="dark-theme-secondary dark-text no-input-border" style="width: 70%; height: 50px; text-align: center; font-size: 32px" id="verify-2fa-code"></label>
+        <p></p>
+        <button class="pure-button pure-button-primary" style="width: 90%" id="enable-2fa-from-wizard">Enable 2FA</button>
+    </div>
+</div>
+
+<script type="text/javascript" src="scripts/libs/qrcodejs/jquery.min.js"></script>
+<script type="text/javascript" src="scripts/libs/qrcodejs/qrcode.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
   window.sendSweetAlert = function(params){
     return new Promise(exec => Swal.fire(params).then(r => exec(r)))
   }
+
+  window.qrcode = (element, params) => new QRCode(element, params)
 </script>
 <script type="module" src="scripts/web/dashboard/dashboard.js"></script>
 </body>

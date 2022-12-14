@@ -16,7 +16,12 @@ const TabButtons = {
 
 const TabContents = {
     Settings: {
-        EmailVerificationButton: document.getElementById("verify-email-button")
+        EmailVerificationButton: document.getElementById("verify-email-button"),
+        Enter2FAWizard: document.getElementById("enter-2fa-wizard"),
+        Remove2FAButton: document.getElementById("remove-2fa"),
+        TwoFAWizard: document.getElementById("qrcode-popup"),
+        TwoFAWizardInput: document.getElementById("verify-2fa-code"),
+        TwoFAUrl: document.getElementById("qrcode-url")
     }
 }
 
@@ -34,6 +39,10 @@ const Notices = {
 let didSendEmailVerification = false
 let didChangeEmail = false
 let didResetPassword = false
+let isEnabling2FA = false
+let isRemoving2FA = false
+
+let qrcode
 
 function renderPage(userdata, token){
     document.getElementById("hiusn").innerHTML = getRandomGreetingPhrase(userdata.Username)
@@ -87,62 +96,7 @@ function renderPage(userdata, token){
         ShowOfflineFriendsCheckbox.parentNode.hidden = true
     }
     setupTabButtonEvents()
-    document.getElementById("change-email").addEventListener("click", () => {
-        if(!didChangeEmail){
-            didChangeEmail = true
-            HypernexAPI.Users.changeEmail(userdata.Id, token.content, document.getElementById("new-email").value).then(r => {
-                if(r)
-                    window.sendSweetAlert({
-                        icon: 'success',
-                        title: "Changed Email!",
-                        text: "Don't forget to verify your new email!"
-                    })
-                else{
-                    didChangeEmail = false
-                    window.sendSweetAlert({
-                        icon: 'error',
-                        title: "Failed to change email!"
-                    })
-                }
-            }).catch(err => {
-                didChangeEmail = false
-                window.sendSweetAlert({
-                    icon: 'error',
-                    title: "Failed to change email!"
-                })
-                console.log(err)
-            })
-        }
-    })
-    document.getElementById("set-password").addEventListener("click", () => {
-        let p1 = document.getElementById("new-password").value
-        let p2 = document.getElementById("confirm-new-password").value
-        if((p1 === p2) && !didResetPassword){
-            didResetPassword = true
-            HypernexAPI.Users.resetPasswordWithUserToken(userdata.Id, token.content, p1).then(r => {
-                if(r)
-                    window.sendSweetAlert({
-                        icon: 'success',
-                        title: "Password Reset",
-                        text: "You should now be signed out"
-                    }).then(() => window.location.reload())
-                else{
-                    didResetPassword = false
-                    window.sendSweetAlert({
-                        icon: 'error',
-                        title: "Failed to Reset Password!"
-                    })
-                }
-            }).catch(err => {
-                didResetPassword = false
-                window.sendSweetAlert({
-                    icon: 'error',
-                    title: "Failed to Reset Password!"
-                })
-                console.log(err)
-            })
-        }
-    })
+    setupSettingsTab(userdata, token)
 }
 
 renderPage({
@@ -300,6 +254,173 @@ function showTab(tabButton, tabToShow){
 function setupTabButtonEvents(){
     TabButtons.HomeButton.addEventListener("click", () => showTab(TabButtons.HomeButton, Tabs.Home))
     TabButtons.SettingsButton.addEventListener("click", () => showTab(TabButtons.SettingsButton, Tabs.Settings))
+}
+
+function setupSettingsTab(userdata, token){
+    document.getElementById("change-email").addEventListener("click", () => {
+        if(!didChangeEmail){
+            didChangeEmail = true
+            HypernexAPI.Users.changeEmail(userdata.Id, token.content, document.getElementById("new-email").value).then(r => {
+                if(r)
+                    window.sendSweetAlert({
+                        icon: 'success',
+                        title: "Changed Email!",
+                        text: "Don't forget to verify your new email!"
+                    })
+                else{
+                    didChangeEmail = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to change email!"
+                    })
+                }
+            }).catch(err => {
+                didChangeEmail = false
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to change email!"
+                })
+                console.log(err)
+            })
+        }
+    })
+    document.getElementById("set-password").addEventListener("click", () => {
+        let p1 = document.getElementById("new-password").value
+        let p2 = document.getElementById("confirm-new-password").value
+        if((p1 === p2) && !didResetPassword){
+            didResetPassword = true
+            HypernexAPI.Users.resetPasswordWithUserToken(userdata.Id, token.content, p1).then(r => {
+                if(r)
+                    window.sendSweetAlert({
+                        icon: 'success',
+                        title: "Password Reset",
+                        text: "You should now be signed out"
+                    }).then(() => window.location.reload())
+                else{
+                    didResetPassword = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Reset Password!"
+                    })
+                }
+            }).catch(err => {
+                didResetPassword = false
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Reset Password!"
+                })
+                console.log(err)
+            })
+        }
+    })
+    if(userdata.is2FAVerified){
+        document.getElementById("2fa-status-text").innerHTML = "2FA Status: Enabled"
+        TabContents.Settings.Enter2FAWizard.hidden = true
+    }
+    else
+        TabContents.Settings.Remove2FAButton.hidden = true
+    qrcode = new QRCode(document.getElementById("qrcode"), {
+        width: 128,
+        height: 128
+    })
+    TabContents.Settings.Enter2FAWizard.addEventListener("click", () => {
+        if(!isEnabling2FA){
+            isEnabling2FA = true
+            TabContents.Settings.TwoFAWizardInput.value = ""
+            HypernexAPI.Users.enable2fa(userdata.Id, token.content).then(url => {
+                if(url){
+                    qrcode.makeCode(url)
+                    TabContents.Settings.TwoFAUrl.innerHTML = url
+                    TabContents.Settings.TwoFAUrl.href = url
+                    TabContents.Settings.TwoFAWizard.hidden = false
+                }
+                else{
+                    isEnabling2FA = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Enable 2FA!"
+                    })
+                }
+            }).catch(err => {
+                isEnabling2FA = false
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Enable 2FA!"
+                })
+                console.log(err)
+            })
+        }
+    })
+    // Close button for 2FA Wizard
+    TabContents.Settings.TwoFAWizard.children[0].children[0].addEventListener("click", () => {
+        isEnabling2FA = false
+        TabContents.Settings.TwoFAWizardInput.hidden = true
+    })
+    document.getElementById("enable-2fa-from-wizard").addEventListener("click", () => {
+        if(isEnabling2FA){
+            HypernexAPI.Users.verify2fa(userdata.Id, token.content, TabContents.Settings.TwoFAWizardInput.value).then(r => {
+                if(r){
+                    window.sendSweetAlert({
+                        icon: 'success',
+                        title: "2FA Enabled!"
+                    }).then(() => {
+                        isEnabling2FA = false
+                        TabContents.Settings.TwoFAWizardInput.hidden = true
+                        window.location.reload()
+                    })
+                }
+                else
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Verify 2FA Code!",
+                        text: "Is your code correct?"
+                    })
+            }).catch(err => {
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Verify 2FA Code!"
+                })
+                console.log(err)
+            })
+        }
+    })
+    TabContents.Settings.Remove2FAButton.addEventListener("click", () => {
+        if(!isRemoving2FA){
+            isRemoving2FA = true
+            window.sendSweetAlert({
+                icon: 'question',
+                title: "Are you sure you want to remove 2FA?",
+                text: "2FA Keeps your account safer by adding an extra layer of security!",
+                confirmButtonText: 'Yes',
+                denyButtonText: 'No',
+                showDenyButton: true
+            }).then(r => {
+                if(r.isConfirmed){
+                    HypernexAPI.Users.remove2fa(userdata.Id, token.content).then(rr => {
+                        if(rr)
+                            window.sendSweetAlert({
+                                icon: 'success',
+                                title: "Removed 2FA!"
+                            }).then(() => window.location.reload())
+                        else{
+                            isRemoving2FA = false
+                            window.sendSweetAlert({
+                                icon: 'error',
+                                title: "Failed to Remove 2FA!"
+                            })
+                        }
+                    }).catch(err => {
+                        isRemoving2FA = false
+                        window.sendSweetAlert({
+                            icon: 'error',
+                            title: "Failed to Remove 2FA!"
+                        })
+                        console.log(err)
+                    })
+                }
+            })
+        }
+    })
 }
 
 /*

@@ -19,6 +19,10 @@ b{
     font-family: Lexend, Arial, sans-serif;
 }
 
+button{
+    font-family: Oxygen, Arial, sans-serif !important;
+}
+
 .outline-text{
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
@@ -99,6 +103,8 @@ b{
 
 .no-input-border{
     border-style: none;
+    border-radius: 5px;
+    font-family: Oxygen, Arial, sans-serif !important;
 }
 
 .top-navigation-bar{
@@ -207,4 +213,22 @@ b{
     text-decoration: none;
     font-family: Lexend, Oxygen, Arial, sans-serif;
     cursor: pointer;
+}
+
+.fixed-popup{
+    background-color: rgba(10, 10, 10, 0.9);
+    width: 102%;
+    height: 102%;
+    position: fixed;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fixed-popup-card{
+    width: 30%;
+    height: 70%;
+    border-radius: 10px;
+    text-align: center;
 }
