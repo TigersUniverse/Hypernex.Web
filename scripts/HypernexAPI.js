@@ -23,25 +23,6 @@ export function setDebug(to) {
     isDebug = to
 }
 
-function getUserHandler(data){
-    return new Promise((exec, reject) => {
-        xhrtools.POST(getAPIEndpoint() + "getUser", data).then(r => {
-            let json = handleRes(r)
-            if(json){
-                if(json.success){
-                    exec(json.result.UserData)
-                }
-                else
-                    reject(new Error("Server Failed to getUser"))
-            }
-            else
-                reject(new Error("Failed to getUser"))
-        }).catch(err => {
-            reject(err)
-        })
-    })
-}
-
 export const Users = {
     login: function (username, password, twofacode) {
         return new Promise((exec, reject) => {
@@ -90,7 +71,7 @@ export const Users = {
             if(isDebug)
                 exec(true)
             else
-                xhrtools.POST(getAPIEndpoint() + "isInviteCodeRequired").then(r => {
+                xhrtools.GET(getAPIEndpoint() + "isInviteCodeRequired").then(r => {
                     let json = handleRes(r)
                     if(json)
                         exec(json.result.inviteCodeRequired)
@@ -126,10 +107,7 @@ export const Users = {
     },
     doesUserExist: function (userid) {
         return new Promise((exec, reject) => {
-            let req = {
-                userid: userid
-            }
-            xhrtools.POST(getAPIEndpoint() + "doesUserExist", req).then(r => {
+            xhrtools.GET(getAPIEndpoint() + "doesUserExist?userid=" + userid).then(r => {
                 let json = handleRes(r)
                 if(json){
                     if(json.success){
@@ -147,31 +125,49 @@ export const Users = {
     },
     getUserFromUserId: function (userid, token) {
         return new Promise((exec, reject) => {
-            let req = {
-                userid: userid
-            }
+            let url = getAPIEndpoint() + "getUser?userid=" + userid
             if(token)
-                req.tokenContent = token.content
-            getUserHandler(req).then(userdata => exec(userdata)).catch(err => reject(err))
+                url += "&tokenContent=" + token.content
+            xhrtools.GET(url).then(r => {
+                let json = handleRes(r)
+                if(json){
+                    if(json.success){
+                        exec(json.result.UserData)
+                    }
+                    else
+                        reject(new Error("Server Failed to getUser"))
+                }
+                else
+                    reject(new Error("Failed to getUser"))
+            }).catch(err => {
+                reject(err)
+            })
         })
     },
     getUserFromUsername: function (username, token) {
         return new Promise((exec, reject) => {
-            let req = {
-                username: username
-            }
+            let url = getAPIEndpoint() + "getUser?username=" + username
             if(token)
-                req.tokenContent = token.content
-            getUserHandler(req).then(userdata => exec(userdata)).catch(err => reject(err))
+                url += "&tokenContent=" + token.content
+            xhrtools.GET(url).then(r => {
+                let json = handleRes(r)
+                if(json){
+                    if(json.success){
+                        exec(json.result.UserData)
+                    }
+                    else
+                        reject(new Error("Server Failed to getUser"))
+                }
+                else
+                    reject(new Error("Failed to getUser"))
+            }).catch(err => {
+                reject(err)
+            })
         })
     },
     isUsernameValidToken: function (username, tokenContent) {
         return new Promise((exec, reject) => {
-            let req = {
-                username: username,
-                tokenContent: tokenContent
-            }
-            xhrtools.POST(getAPIEndpoint() + "isValidToken", req).then(r => {
+            xhrtools.GET(getAPIEndpoint() + "isValidToken?username=" + username + "&tokenContent=" + tokenContent).then(r => {
                 let json = handleRes(r)
                 if(json && json.success)
                     exec(json.result.isValidToken)
@@ -184,11 +180,7 @@ export const Users = {
     },
     isUserIdValidToken: function (userid, tokenContent) {
         return new Promise((exec, reject) => {
-            let req = {
-                userid: userid,
-                tokenContent: tokenContent
-            }
-            xhrtools.POST(getAPIEndpoint() + "isValidToken", req).then(r => {
+            xhrtools.POST(getAPIEndpoint() + "isValidToken?userid=" + userid + "&tokenContent=" + tokenContent).then(r => {
                 let json = handleRes(r)
                 if(json && json.success)
                     exec(json.result.isValidToken)
@@ -273,6 +265,24 @@ export const Users = {
             let req = {
                 userid: userid,
                 passwordResetContent: passwordResetContent,
+                newPassword: newPassword
+            }
+            xhrtools.POST(getAPIEndpoint() + "resetPassword", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    resetPasswordWithUserToken: function (userid, tokenContent, newPassword) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
                 newPassword: newPassword
             }
             xhrtools.POST(getAPIEndpoint() + "resetPassword", req).then(r => {
@@ -474,7 +484,34 @@ export const Users = {
 }
 
 export const File = {
-    Upload: function (userid, fileLocation) {
-
+    // Grab file from <input type="file">
+    Upload: function (userid, tokenContent, file) {
+        return new Promise((exec, reject) => {
+            const formData = new FormData()
+            formData.append('userid', userid)
+            formData.append('tokenContent', tokenContent)
+            formData.append("file", file)
+            xhrtools.POST(getAPIEndpoint() + "upload", {
+                method: "POST",
+                body: formData
+            }, true).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => reject(err))
+        })
+    },
+    // TODO: Will change on server over time
+    GetFile: function (userid, fileid) {
+        return new Promise((exec, reject) => {
+            xhrtools.GET(getAPIEndpoint() + userid + "/" + fileid, undefined, "arraybuffer").then(r => {
+                if(r)
+                    exec(r)
+                else
+                    reject(new Error("Failed to download file"))
+            }).catch(err => reject(err))
+        })
     }
 }

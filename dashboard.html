@@ -38,8 +38,8 @@
 </div>
 <!--End Bubble Templates-->
 
-<div class="centered-list-main">
-    <h4><b style="font-size: 32px">Dashboard</b></h4>
+<div class="centered-list-main" id="home-tab">
+    <h4><b style="font-size: 32px">Home</b></h4>
     <a style="font-size: 22px" id="friends-label">Friends</a>
     <p></p>
     <button class="nav-button dark-theme-secondary dark-text" id="friends-nav-left" style="position: absolute; height: 210px; left: -25px;"><</button>
@@ -58,8 +58,34 @@
     <label class="pure-checkbox"><input type="checkbox" id="friends-show-offline"> Show Offline Friends</label>
 </div>
 
+<div class="centered-list-main" id="settings-tab" hidden>
+    <h4><b class="dark-text" style="font-size: 32px">Settings</b></h4>
+    <a class="dark-text" style="font-size: 22px">Email</a>
+    <p></p>
+    <a class="dark-text" id="email-verification-status">Email Verification Status: Not Verified</a>
+    <button class="pure-button pure-button-primary" id="verify-email-button">Verify Email</button>
+    <p></p>
+    <a class="dark-text">Set a new Email: </a>
+    <label><input type="text" class="dark-theme-secondary dark-text no-input-border" id="new-email"></label>
+    <button class="pure-button pure-button-primary" id="change-email">Change Email</button>
+    <p></p>
+    <a class="dark-text" style="font-size: 22px">Password</a>
+    <p></p>
+    <a class="dark-text">Reset your Password</a>
+    <p></p>
+    <a class="dark-text">New Password</a>
+    <label><input type="text" class="dark-theme-secondary dark-text no-input-border" id="new-password"></label>
+    <p></p>
+    <a class="dark-text">Confirm New Password</a>
+    <label><input type="text" class="dark-theme-secondary dark-text no-input-border" id="confirm-new-password"></label>
+    <p></p>
+    <button class="pure-button pure-button-primary" id="set-password">Set New Password</button>
+</div>
+
 <div class="top-navigation-bar dark-theme-secondary">
     <b class="align-left dark-text" style="font-size: 32px; padding-top: 0.5%">Hypernex</b>
+    <a class="align-left dark-text selected-tab top-nav-bar-tab" style="top: 20px; left: 50px;" id="home-tab-button">HOME</a>
+    <a class="align-left dark-text top-nav-bar-tab" style="top: 20px; left: 60px;" id="settings-tab-button">SETTINGS</a>
     <button class="error-button pure-button align-right" style="top: 15px" id="signoutButton">Sign Out</button>
     <a id="hiusn" class="align-right dark-text" style="top: 23px; right: 25px"></a>
 </div>
@@ -67,7 +93,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
   window.sendSweetAlert = function(params){
-    Swal.fire(params)
+    return new Promise(exec => Swal.fire(params).then(r => exec(r)))
   }
 </script>
 <script type="module" src="scripts/web/dashboard/dashboard.js"></script>

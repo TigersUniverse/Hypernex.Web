@@ -4,7 +4,152 @@ import * as HypernexAPI from '../../HypernexAPI.js'
 const FriendsList = document.getElementById("friends-list")
 const ShowOfflineFriendsCheckbox = document.getElementById("friends-show-offline")
 
+const Tabs = {
+    Home: document.getElementById("home-tab"),
+    Settings: document.getElementById("settings-tab")
+}
+
+const TabButtons = {
+    HomeButton: document.getElementById("home-tab-button"),
+    SettingsButton: document.getElementById("settings-tab-button")
+}
+
+const TabContents = {
+    Settings: {
+        EmailVerificationButton: document.getElementById("verify-email-button")
+    }
+}
+
+const HomeFriendsListLeftButton = document.getElementById("friends-nav-left")
+const HomeFriendsListRightButton = document.getElementById("friends-nav-right")
+
 const SHORTENED_TEXT_LIMIT = 35
+
+const Notices = {
+    Info: 0,
+    Warning: 1,
+    Error: 2
+}
+
+let didSendEmailVerification = false
+let didChangeEmail = false
+let didResetPassword = false
+
+function renderPage(userdata, token){
+    document.getElementById("hiusn").innerHTML = getRandomGreetingPhrase(userdata.Username)
+    if(!userdata.isEmailVerified){
+        createDashboardNotice(Notices.Info, "Email not Verified!", "Please verify your email! It will protect your account from loss and theft! You can navigate to the Settings panel to set this up.")
+        TabContents.Settings.EmailVerificationButton.addEventListener("click", () => {
+            if(!didSendEmailVerification){
+                didSendEmailVerification = true
+                HypernexAPI.Users.sendVerificationEmail(userdata.Id, token.content).then(r => {
+                    if(r)
+                        window.sendSweetAlert({
+                            icon: 'success',
+                            title: "Sent Verification Email!",
+                            text: "Please follow the link from the email in your inbox to verify your email"
+                        })
+                    else {
+                        didSendEmailVerification = false
+                        window.sendSweetAlert({
+                            icon: 'error',
+                            title: "Could not send Verification Email!"
+                        })
+                    }
+                }).catch(err => {
+                    didSendEmailVerification = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Could not send Verification Email!"
+                    })
+                    console.log(err)
+                })
+            }
+        })
+    }
+    else{
+        document.getElementById("email-verification-status").innerHTML = "Email Verification Status: Verified"
+        document.getElementById("verify-email-button").hidden = true
+    }
+    HomeFriendsListLeftButton.addEventListener("click", () => FriendsList.scrollLeft -= 400)
+    HomeFriendsListRightButton.addEventListener("click", () => FriendsList.scrollLeft += 400)
+    let f = sortOfflineFriends(userdata.Friends).TotalFriends
+    for(let i = 0; i < f.length; i++){
+        let friend = f[i]
+        createFriendCard(friend)
+    }
+    toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked)
+    ShowOfflineFriendsCheckbox.addEventListener("click", () => toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked))
+    document.getElementById("friends-label").innerHTML = "Friends (" + f.length + ")"
+    if(f.length <= 0){
+        HomeFriendsListLeftButton.hidden = true
+        HomeFriendsListRightButton.hidden = true
+        ShowOfflineFriendsCheckbox.parentNode.hidden = true
+    }
+    setupTabButtonEvents()
+    document.getElementById("change-email").addEventListener("click", () => {
+        if(!didChangeEmail){
+            didChangeEmail = true
+            HypernexAPI.Users.changeEmail(userdata.Id, token.content, document.getElementById("new-email").value).then(r => {
+                if(r)
+                    window.sendSweetAlert({
+                        icon: 'success',
+                        title: "Changed Email!",
+                        text: "Don't forget to verify your new email!"
+                    })
+                else{
+                    didChangeEmail = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to change email!"
+                    })
+                }
+            }).catch(err => {
+                didChangeEmail = false
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to change email!"
+                })
+                console.log(err)
+            })
+        }
+    })
+    document.getElementById("set-password").addEventListener("click", () => {
+        let p1 = document.getElementById("new-password").value
+        let p2 = document.getElementById("confirm-new-password").value
+        if((p1 === p2) && !didResetPassword){
+            didResetPassword = true
+            HypernexAPI.Users.resetPasswordWithUserToken(userdata.Id, token.content, p1).then(r => {
+                if(r)
+                    window.sendSweetAlert({
+                        icon: 'success',
+                        title: "Password Reset",
+                        text: "You should now be signed out"
+                    }).then(() => window.location.reload())
+                else{
+                    didResetPassword = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Reset Password!"
+                    })
+                }
+            }).catch(err => {
+                didResetPassword = false
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Reset Password!"
+                })
+                console.log(err)
+            })
+        }
+    })
+}
+
+renderPage({
+    Username: "TheLegend27",
+    Friends: [],
+    isEmailVerified: false
+}, {content: "1234"})
 
 function getRandomGreetingPhrase(username) {
     const greetings = ["Howdy", "Hello", "Greetings", "Welcome", "G'day", "Hey", "Howdy-do", "Shalom"]
@@ -55,35 +200,16 @@ function toggleOfflineFriends(value){
     }
 }
 
-function renderPage(userdata){
-    document.getElementById("hiusn").innerHTML = getRandomGreetingPhrase(userdata.Username)
-    document.getElementById("friends-nav-left").addEventListener("click", () => FriendsList.scrollLeft -= 400)
-    document.getElementById("friends-nav-right").addEventListener("click", () => FriendsList.scrollLeft += 400)
-    let f = sortOfflineFriends(userdata.Friends).TotalFriends
-    for(let i = 0; i < f.length; i++){
-        let friend = f[i]
-        createFriendCard(friend)
-    }
-    toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked)
-    ShowOfflineFriendsCheckbox.addEventListener("click", () => toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked))
-    document.getElementById("friends-label").innerHTML = "Friends (" + f.length + ")"
-}
-
-renderPage({
-    Username: "TheLegend27",
-    Friends: []
-})
-
 function createDashboardNotice(type, heading, description){
     let id
     switch (type){
-        case webtools.Notices.Info:
+        case Notices.Info:
             id = "infoBubble"
             break
-        case webtools.Notices.Warning:
+        case Notices.Warning:
             id = "warningBubble"
             break
-        case webtools.Notices.Error:
+        case Notices.Error:
             id = "errorBubble"
             break
         default:
@@ -156,6 +282,24 @@ function createFriendCard(user){
     friendCard.hidden = false
     friendCard.id = ""
     t.parentNode.appendChild(friendCard)
+}
+
+function showTab(tabButton, tabToShow){
+    for(let key of Object.keys(TabButtons)){
+        let value = TabButtons[key]
+        value.classList.remove("selected-tab")
+    }
+    for(let key of Object.keys(Tabs)){
+        let value = Tabs[key]
+        value.hidden = true
+    }
+    tabButton.classList.add("selected-tab")
+    tabToShow.hidden = false
+}
+
+function setupTabButtonEvents(){
+    TabButtons.HomeButton.addEventListener("click", () => showTab(TabButtons.HomeButton, Tabs.Home))
+    TabButtons.SettingsButton.addEventListener("click", () => showTab(TabButtons.SettingsButton, Tabs.Settings))
 }
 
 /*

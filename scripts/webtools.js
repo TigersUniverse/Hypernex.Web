@@ -92,9 +92,3 @@ export const Themes = {
     Light: 1,
     Pink: 2
 }
-
-export const Notices = {
-    Info: 0,
-    Warning: 1,
-    Error: 2
-}

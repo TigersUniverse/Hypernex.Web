@@ -97,6 +97,10 @@ b{
     background-color: #0a0a0a;
 }
 
+.no-input-border{
+    border-style: none;
+}
+
 .top-navigation-bar{
     position: fixed;
     min-width: 100%;
@@ -162,8 +166,17 @@ b{
     color: ghostwhite !important;
 }
 
+.top-nav-bar-tab{
+    cursor: pointer;
+}
+
+.selected-tab {
+    text-decoration: underline auto;
+    text-decoration-thickness: 5px;
+}
+
 .centered-list-main{
-    position: absolute;
+    position: relative;
     min-width: 75%;
     max-width: 75%;
     min-height: 80%;
