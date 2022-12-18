@@ -2,6 +2,7 @@ import * as webtools from '../../webtools.js'
 import * as HypernexAPI from '../../HypernexAPI.js'
 
 const FriendsList = document.getElementById("friends-list")
+const FriendRequestsList = document.getElementById("friend-requests-list")
 const ShowOfflineFriendsCheckbox = document.getElementById("friends-show-offline")
 
 const Tabs = {
@@ -27,6 +28,8 @@ const TabContents = {
 
 const HomeFriendsListLeftButton = document.getElementById("friends-nav-left")
 const HomeFriendsListRightButton = document.getElementById("friends-nav-right")
+const HomeFriendRequestsListLeftButton = document.getElementById("friend-requests-nav-left")
+const HomeFriendRequestsListRightButton = document.getElementById("friend-requests-nav-right")
 
 const SHORTENED_TEXT_LIMIT = 35
 
@@ -85,7 +88,11 @@ function renderPage(userdata, token){
     let f = sortOfflineFriends(userdata.Friends).TotalFriends
     for(let i = 0; i < f.length; i++){
         let friend = f[i]
-        createFriendCard(friend)
+        HypernexAPI.Users.getUserFromUserId(friend).then(user => {
+            if(user !== undefined){
+                createFriendCard(user)
+            }
+        })
     }
     toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked)
     ShowOfflineFriendsCheckbox.addEventListener("click", () => toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked))
@@ -95,14 +102,31 @@ function renderPage(userdata, token){
         HomeFriendsListRightButton.hidden = true
         ShowOfflineFriendsCheckbox.parentNode.hidden = true
     }
+    HomeFriendRequestsListLeftButton.addEventListener("click", () => FriendRequestsList.scrollLeft -= 400)
+    HomeFriendRequestsListRightButton.addEventListener("click", () => FriendRequestsList.scrollLeft += 400)
+    let fr = userdata.FriendRequests
+    for(let i = 0; i < fr.length; i++){
+        let friendRequest = fr[i]
+        HypernexAPI.Users.getUserFromUserId(friendRequest).then(user => {
+            if(user !== undefined){
+                createFriendRequestCard(user)
+            }
+        })
+    }
+    document.getElementById("friend-requests-label").innerHTML = "Friend Requests (" + fr.length + ")"
+    if(fr.length <= 0){
+        HomeFriendRequestsListLeftButton.hidden = true
+        HomeFriendRequestsListRightButton.hidden = true
+    }
     setupTabButtonEvents()
     setupSettingsTab(userdata, token)
 }
 
 renderPage({
     Username: "TheLegend27",
+    FriendRequests: [],
     Friends: [],
-    isEmailVerified: false
+    isEmailVerified: true
 }, {content: "1234"})
 
 function getRandomGreetingPhrase(username) {
@@ -198,6 +222,56 @@ function createFriendCard(user){
     let statusIcon = friendCard.children[1].children[1]
     let usernameText = friendCard.children[1].children[2]
     let statusText = friendCard.children[1].children[3]
+    let bio = user.Bio
+    if(bio.BannerURL === undefined || bio.BannerURL === "")
+        bio.BannerURL = "media/defaultbanner.jpg"
+    bannerImg.src = bio.BannerURL
+    if(bio.PfpURL === undefined || bio.PfpURL === "")
+        bio.PfpURL = "media/defaultpfp.jpg"
+    pfpImg.src = bio.PfpURL
+    switch (bio.Status) {
+        case HypernexAPI.Users.Status.Online:
+            statusIcon.style.backgroundColor = "rgb(44, 224, 44)"
+            statusText.innerHTML = "Online"
+            break
+        case HypernexAPI.Users.Status.Absent:
+            statusIcon.style.backgroundColor = "rgb(255,187,15)"
+            statusText.innerHTML = "Absent"
+            break
+        case HypernexAPI.Users.Status.Party:
+            statusIcon.style.backgroundColor = "rgb(41,185,255)"
+            statusText.innerHTML = "Party"
+            break
+        case HypernexAPI.Users.Status.DoNotDisturb:
+            statusIcon.style.backgroundColor = "rgb(224,44,44)"
+            statusText.innerHTML = "Do Not Disturb"
+            break
+        default:
+            statusIcon.style.backgroundColor = "gray"
+            statusText.innerHTML = "Offline"
+            break
+    }
+    if(bio.DisplayName !== undefined && bio.DisplayName !== "")
+        usernameText.innerHTML = bio.DisplayName
+    else
+        usernameText.innerHTML = "@" + user.Username
+    if(bio.StatusText !== undefined && bio.StatusText !== "" && bio.Status !== HypernexAPI.Users.Status.Offline)
+        statusText.innerHTML = getShortenedText(bio.StatusText)
+    friendCard.hidden = false
+    friendCard.id = ""
+    t.parentNode.appendChild(friendCard)
+}
+
+function createFriendRequestCard(user){
+    let t = document.getElementById("example-friend-request-card")
+    let friendCard = t.cloneNode(true)
+    let bannerImg = friendCard.children[0]
+    let pfpImg = friendCard.children[1].children[0]
+    let statusIcon = friendCard.children[1].children[1]
+    let usernameText = friendCard.children[1].children[2]
+    let statusText = friendCard.children[1].children[3]
+    let acceptButton = friendCard.children[2]
+    let denyButton = friendCard.children[3]
     let bio = user.Bio
     if(bio.BannerURL === undefined || bio.BannerURL === "")
         bio.BannerURL = "media/defaultbanner.jpg"

@@ -548,8 +548,8 @@ export const File = {
                 body: formData
             }, true).then(r => {
                 let json = handleRes(r)
-                if(json)
-                    exec(json.success)
+                if(json && json.success)
+                    exec(json.UploadData)
                 else
                     exec(false)
             }).catch(err => reject(err))

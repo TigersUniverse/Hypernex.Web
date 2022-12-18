@@ -167,6 +167,12 @@ button{
 }
 
 /*Why does PureCSS make me use !important?*/
+.success-button{
+    background-color: #45b71b !important;
+    color: ghostwhite !important;
+}
+
+/*Why does PureCSS make me use !important?*/
 .error-button{
     background-color: #f52a3a !important;
     color: ghostwhite !important;

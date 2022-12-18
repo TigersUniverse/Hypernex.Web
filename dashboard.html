@@ -55,6 +55,23 @@
             </div>
         </li>
     </ul>
+    <a style="font-size: 22px" id="friend-requests-label">Friend Requests</a>
+    <p></p>
+    <button class="nav-button dark-theme-secondary dark-text" id="friend-requests-nav-left" style="position: absolute; height: 210px; left: -25px;"><</button>
+    <button class="nav-button dark-theme-secondary dark-text" id="friend-requests-nav-right" style="position: absolute; height: 210px; right: -25px">></button>
+    <ul class="friend-list-card" id="friend-requests-list">
+        <li id="example-friend-request-card" hidden>
+            <img src="media/defaultbanner.jpg" alt="g" style="min-width: 400px; max-width: 400px; max-height: 225px; min-height: 129px; object-fit: cover; border-radius: 10px;"/>
+            <div style="position: relative; min-width: 100%; background-color: rgba(0, 0, 0, 0.9); height: 50px; bottom: 54px; border-radius: 0 0 9px 9px;">
+                <img src="media/defaultpfp.jpg" alt="g" style="position: relative; object-fit: cover; min-width: 100px; max-width: 100px; min-height: 100px; max-height: 100px; bottom: 60px; left: 10px; border-radius: 10px;"/>
+                <div style="position: relative; width: 25px; height:25px; border-radius: 50px; border-style: solid; border-width: 1px; border-color: white; background-color: gray; bottom: 85px; left: 95px;"></div>
+                <a style="position: absolute; bottom: 30px; left: 130px;">Username</a>
+                <a style="position: absolute; bottom: 10px; left: 130px; font-size: 14px;">Status</a>
+            </div>
+            <button class="success-button pure-button" style="position: relative; left: 18px; top: -260px;">Accept</button>
+            <button class="error-button pure-button" style="position: relative; left: 30px; top: -260px;">Deny</button>
+        </li>
+    </ul>
     <label class="pure-checkbox"><input type="checkbox" id="friends-show-offline"> Show Offline Friends</label>
 </div>
 
