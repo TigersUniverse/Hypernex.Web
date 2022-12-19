@@ -109,7 +109,7 @@ function renderPage(userdata, token){
         let friendRequest = fr[i]
         HypernexAPI.Users.getUserFromUserId(friendRequest).then(user => {
             if(user !== undefined){
-                createFriendRequestCard(user)
+                createFriendRequestCard(user, userdata.Id, token)
             }
         })
     }
@@ -262,7 +262,7 @@ function createFriendCard(user){
     t.parentNode.appendChild(friendCard)
 }
 
-function createFriendRequestCard(user){
+function createFriendRequestCard(user, localUserId, localUserToken){
     let t = document.getElementById("example-friend-request-card")
     let friendCard = t.cloneNode(true)
     let bannerImg = friendCard.children[0]
@@ -271,7 +271,7 @@ function createFriendRequestCard(user){
     let usernameText = friendCard.children[1].children[2]
     let statusText = friendCard.children[1].children[3]
     let acceptButton = friendCard.children[2]
-    let denyButton = friendCard.children[3]
+    let declineButton = friendCard.children[3]
     let bio = user.Bio
     if(bio.BannerURL === undefined || bio.BannerURL === "")
         bio.BannerURL = "media/defaultbanner.jpg"
@@ -309,6 +309,56 @@ function createFriendRequestCard(user){
         statusText.innerHTML = getShortenedText(bio.StatusText)
     friendCard.hidden = false
     friendCard.id = ""
+    let acceptButtonClicked = false
+    acceptButton.addEventListener("click", () => {
+        if(!acceptButtonClicked){
+            acceptButtonClicked = true
+            HypernexAPI.Users.acceptFriendRequest(localUserId, localUserToken.content, user.Id).then(r => {
+                if(r){
+                    friendCard.remove()
+                }
+                else{
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: 'Failed to accept Friend Request'
+                    })
+                    acceptButtonClicked = false
+                }
+            }).catch(err => {
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: 'Failed to accept Friend Request'
+                })
+                console.log(err)
+                acceptButtonClicked = false
+            })
+        }
+    })
+    let declineButtonClicked = false
+    declineButton.addEventListener("click", () => {
+        if(!declineButtonClicked){
+            declineButtonClicked = true
+            HypernexAPI.Users.declineFriendRequest(localUserId, localUserToken.content, user.Id).then(r => {
+                if(r){
+                    friendCard.remove()
+                }
+                else{
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: 'Failed to decline Friend Request'
+                    })
+                    declineButtonClicked = false
+                }
+            }).catch(err => {
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: 'Failed to decline Friend Request'
+                })
+                console.log(err)
+                declineButtonClicked = false
+            })
+        }
+    })
     t.parentNode.appendChild(friendCard)
 }
 
