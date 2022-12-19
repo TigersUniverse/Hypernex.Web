@@ -7,11 +7,13 @@ const ShowOfflineFriendsCheckbox = document.getElementById("friends-show-offline
 
 const Tabs = {
     Home: document.getElementById("home-tab"),
+    Profile: document.getElementById("profile-tab"),
     Settings: document.getElementById("settings-tab")
 }
 
 const TabButtons = {
     HomeButton: document.getElementById("home-tab-button"),
+    ProfileButton: document.getElementById("profile-tab-button"),
     SettingsButton: document.getElementById("settings-tab-button")
 }
 
@@ -377,6 +379,7 @@ function showTab(tabButton, tabToShow){
 
 function setupTabButtonEvents(){
     TabButtons.HomeButton.addEventListener("click", () => showTab(TabButtons.HomeButton, Tabs.Home))
+    TabButtons.ProfileButton.addEventListener("click", () => showTab(TabButtons.ProfileButton, Tabs.Profile))
     TabButtons.SettingsButton.addEventListener("click", () => showTab(TabButtons.SettingsButton, Tabs.Settings))
 }
 

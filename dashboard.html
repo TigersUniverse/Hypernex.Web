@@ -61,9 +61,9 @@
     <button class="nav-button dark-theme-secondary dark-text" id="friend-requests-nav-right" style="position: absolute; height: 210px; right: -25px">></button>
     <ul class="friend-list-card" id="friend-requests-list">
         <li id="example-friend-request-card" hidden>
-            <img src="media/defaultbanner.jpg" alt="g" style="min-width: 400px; max-width: 400px; max-height: 225px; min-height: 129px; object-fit: cover; border-radius: 10px;"/>
+            <img src="media/defaultbanner.jpg" alt="Banner" style="min-width: 400px; max-width: 400px; max-height: 225px; min-height: 129px; object-fit: cover; border-radius: 10px;"/>
             <div style="position: relative; min-width: 100%; background-color: rgba(0, 0, 0, 0.9); height: 50px; bottom: 54px; border-radius: 0 0 9px 9px;">
-                <img src="media/defaultpfp.jpg" alt="g" style="position: relative; object-fit: cover; min-width: 100px; max-width: 100px; min-height: 100px; max-height: 100px; bottom: 60px; left: 10px; border-radius: 10px;"/>
+                <img src="media/defaultpfp.jpg" alt="Profile Picture" style="position: relative; object-fit: cover; min-width: 100px; max-width: 100px; min-height: 100px; max-height: 100px; bottom: 60px; left: 10px; border-radius: 10px;"/>
                 <div style="position: relative; width: 25px; height:25px; border-radius: 50px; border-style: solid; border-width: 1px; border-color: white; background-color: gray; bottom: 85px; left: 95px;"></div>
                 <a style="position: absolute; bottom: 30px; left: 130px;">Username</a>
                 <a style="position: absolute; bottom: 10px; left: 130px; font-size: 14px;">Status</a>
@@ -73,6 +73,14 @@
         </li>
     </ul>
     <label class="pure-checkbox"><input type="checkbox" id="friends-show-offline"> Show Offline Friends</label>
+</div>
+
+<div class="centered-list-main" id="profile-tab" hidden>
+    <div>
+        <img src="media/defaultbanner.jpg" alt="Banner" style="min-width: 100%; max-width: 100%; max-height: 300px; object-fit: cover; border-radius: 10px;">
+        <img src="media/defaultpfp.jpg" alt="pfp" style="position: absolute; min-width: 200px; max-width: 200px; min-height: 200px; max-height: 200px; object-fit: cover; border-radius: 10px; left: 30px; top: 135px;">
+    </div>
+    <a class="dark-text" style="position: absolute; top: 350px; left: 30px; font-size: 32px;">Username</a>
 </div>
 
 <div class="centered-list-main" id="settings-tab" hidden>
@@ -109,7 +117,8 @@
 <div class="top-navigation-bar dark-theme-secondary">
     <b class="align-left dark-text" style="font-size: 32px; padding-top: 0.5%">Hypernex</b>
     <a class="align-left dark-text selected-tab top-nav-bar-tab" style="top: 20px; left: 50px;" id="home-tab-button">HOME</a>
-    <a class="align-left dark-text top-nav-bar-tab" style="top: 20px; left: 60px;" id="settings-tab-button">SETTINGS</a>
+    <a class="align-left dark-text top-nav-bar-tab" style="top: 20px; left: 60px;" id="profile-tab-button">PROFILE</a>
+    <a class="align-left dark-text top-nav-bar-tab" style="top: 20px; left: 70px;" id="settings-tab-button">SETTINGS</a>
     <button class="error-button pure-button align-right" style="top: 15px" id="signoutButton">Sign Out</button>
     <a id="hiusn" class="align-right dark-text" style="top: 23px; right: 25px"></a>
 </div>
