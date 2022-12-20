@@ -222,7 +222,8 @@ function createFriendCard(user){
     let bannerImg = friendCard.children[0]
     let pfpImg = friendCard.children[1].children[0]
     let statusIcon = friendCard.children[1].children[1]
-    let usernameText = friendCard.children[1].children[2]
+    let usernameText = friendCard.children[1].children[2].children[0]
+    let pronounText = friendCard.children[1].children[2].children[1]
     let statusText = friendCard.children[1].children[3]
     let bio = user.Bio
     if(bio.BannerURL === undefined || bio.BannerURL === "")
@@ -259,6 +260,14 @@ function createFriendCard(user){
         usernameText.innerHTML = "@" + user.Username
     if(bio.StatusText !== undefined && bio.StatusText !== "" && bio.Status !== HypernexAPI.Users.Status.Offline)
         statusText.innerHTML = getShortenedText(bio.StatusText)
+    if(bio.Pronouns !== undefined){
+        let text = ""
+        for(let i = 0; i < bio.Pronouns.Display.length; i++)
+            text += bio.Pronouns.Display[i] + "/"
+        text = text.substring(text.length - 1, 0)
+        pronounText.innerHTML = text
+        pronounText.hidden = false
+    }
     friendCard.hidden = false
     friendCard.id = ""
     t.parentNode.appendChild(friendCard)
@@ -270,7 +279,8 @@ function createFriendRequestCard(user, localUserId, localUserToken){
     let bannerImg = friendCard.children[0]
     let pfpImg = friendCard.children[1].children[0]
     let statusIcon = friendCard.children[1].children[1]
-    let usernameText = friendCard.children[1].children[2]
+    let usernameText = friendCard.children[1].children[2].children[0]
+    let pronounText = friendCard.children[1].children[2].children[1]
     let statusText = friendCard.children[1].children[3]
     let acceptButton = friendCard.children[2]
     let declineButton = friendCard.children[3]
@@ -309,6 +319,14 @@ function createFriendRequestCard(user, localUserId, localUserToken){
         usernameText.innerHTML = "@" + user.Username
     if(bio.StatusText !== undefined && bio.StatusText !== "" && bio.Status !== HypernexAPI.Users.Status.Offline)
         statusText.innerHTML = getShortenedText(bio.StatusText)
+    if(bio.Pronouns !== undefined){
+        let text = ""
+        for(let i = 0; i < bio.Pronouns.Display.length; i++)
+            text += bio.Pronouns.Display[i] + "/"
+        text = text.substring(text.length - 1, 0)
+        pronounText.innerHTML = text
+        pronounText.hidden = false
+    }
     friendCard.hidden = false
     friendCard.id = ""
     let acceptButtonClicked = false
