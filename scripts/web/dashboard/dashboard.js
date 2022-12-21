@@ -1,5 +1,11 @@
 import * as webtools from '../../webtools.js'
 import * as HypernexAPI from '../../HypernexAPI.js'
+import * as pronountools from '../../pronountools.js'
+
+let localUser
+let localToken
+
+let targetProfileUser
 
 const FriendsList = document.getElementById("friends-list")
 const FriendRequestsList = document.getElementById("friend-requests-list")
@@ -18,6 +24,16 @@ const TabButtons = {
 }
 
 const TabContents = {
+    Profile: {
+        AddFriendButton: document.getElementById("profile-add-friend"),
+        RemoveFriendButton: document.getElementById("profile-remove-friend"),
+        BlockButton: document.getElementById("profile-block"),
+        UnblockButton: document.getElementById("profile-unblock"),
+        FollowButton: document.getElementById("profile-follow"),
+        UnfollowButton: document.getElementById("profile-unfollow"),
+        EditProfile: document.getElementById("profile-edit"),
+        EditProfileCardContent: document.getElementById("edit-profile-popup").children[0]
+    },
     Settings: {
         EmailVerificationButton: document.getElementById("verify-email-button"),
         Enter2FAWizard: document.getElementById("enter-2fa-wizard"),
@@ -49,86 +65,57 @@ let isRemoving2FA = false
 
 let qrcode
 
+let isSendingFriendRequest = false
+let isRemovingFriend = false
+let isBlockingUser = false
+let isUnblockingUser = false
+let isFollowUser = false
+let isUnfollowUser = false
+
 function renderPage(userdata, token){
+    localUser = userdata
+    localToken = token
+    targetProfileUser = localUser
     document.getElementById("hiusn").innerHTML = getRandomGreetingPhrase(userdata.Username)
-    if(!userdata.isEmailVerified){
-        createDashboardNotice(Notices.Info, "Email not Verified!", "Please verify your email! It will protect your account from loss and theft! You can navigate to the Settings panel to set this up.")
-        TabContents.Settings.EmailVerificationButton.addEventListener("click", () => {
-            if(!didSendEmailVerification){
-                didSendEmailVerification = true
-                HypernexAPI.Users.sendVerificationEmail(userdata.Id, token.content).then(r => {
-                    if(r)
-                        window.sendSweetAlert({
-                            icon: 'success',
-                            title: "Sent Verification Email!",
-                            text: "Please follow the link from the email in your inbox to verify your email"
-                        })
-                    else {
-                        didSendEmailVerification = false
-                        window.sendSweetAlert({
-                            icon: 'error',
-                            title: "Could not send Verification Email!"
-                        })
-                    }
-                }).catch(err => {
-                    didSendEmailVerification = false
-                    window.sendSweetAlert({
-                        icon: 'error',
-                        title: "Could not send Verification Email!"
-                    })
-                    console.log(err)
-                })
-            }
-        })
-    }
-    else{
-        document.getElementById("email-verification-status").innerHTML = "Email Verification Status: Verified"
-        document.getElementById("verify-email-button").hidden = true
-    }
-    HomeFriendsListLeftButton.addEventListener("click", () => FriendsList.scrollLeft -= 400)
-    HomeFriendsListRightButton.addEventListener("click", () => FriendsList.scrollLeft += 400)
-    let f = sortOfflineFriends(userdata.Friends).TotalFriends
-    for(let i = 0; i < f.length; i++){
-        let friend = f[i]
-        HypernexAPI.Users.getUserFromUserId(friend).then(user => {
-            if(user !== undefined){
-                createFriendCard(user)
-            }
-        })
-    }
-    toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked)
-    ShowOfflineFriendsCheckbox.addEventListener("click", () => toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked))
-    document.getElementById("friends-label").innerHTML = "Friends (" + f.length + ")"
-    if(f.length <= 0){
-        HomeFriendsListLeftButton.hidden = true
-        HomeFriendsListRightButton.hidden = true
-        ShowOfflineFriendsCheckbox.parentNode.hidden = true
-    }
-    HomeFriendRequestsListLeftButton.addEventListener("click", () => FriendRequestsList.scrollLeft -= 400)
-    HomeFriendRequestsListRightButton.addEventListener("click", () => FriendRequestsList.scrollLeft += 400)
-    let fr = userdata.FriendRequests
-    for(let i = 0; i < fr.length; i++){
-        let friendRequest = fr[i]
-        HypernexAPI.Users.getUserFromUserId(friendRequest).then(user => {
-            if(user !== undefined){
-                createFriendRequestCard(user, userdata.Id, token)
-            }
-        })
-    }
-    document.getElementById("friend-requests-label").innerHTML = "Friend Requests (" + fr.length + ")"
-    if(fr.length <= 0){
-        HomeFriendRequestsListLeftButton.hidden = true
-        HomeFriendRequestsListRightButton.hidden = true
-    }
     setupTabButtonEvents()
+    setupFriends()
+    registerProfileButtonEvents()
+    setupEditProfile()
     setupSettingsTab(userdata, token)
 }
 
 renderPage({
+    Id: "7",
     Username: "TheLegend27",
     FriendRequests: [],
     Friends: [],
-    isEmailVerified: true
+    OutgoingFriendRequests: [],
+    BlockedUsers: [],
+    Following: [],
+    isEmailVerified: true,
+    Bio: {
+        isPrivateAccount: false,
+        Status: HypernexAPI.Users.Status.Online,
+        StatusText: "Gaming!",
+        Description: "",
+        PfpURL: "",
+        BannerURL: "",
+        DisplayName: "The GOAT",
+        Pronouns: {
+            NominativeCase: pronountools.Pronouns.HeHimHis.NominativeCase,
+            AccusativeCase: pronountools.Pronouns.HeHimHis.AccusativeCase,
+            ReflexivePronoun: pronountools.Pronouns.HeHimHis.ReflexivePronoun,
+            IndependentGenitiveCase: pronountools.Pronouns.HeHimHis.IndependentGenitiveCase,
+            DependentGenitiveCase: pronountools.Pronouns.HeHimHis.DependentGenitiveCase,
+            Action: false,
+            DisplayThree: false,
+            Display:[
+                pronountools.Cases.NominativeCase,
+                pronountools.Cases.AccusativeCase,
+                pronountools.Cases.ReflexivePronoun
+            ]
+        }
+    },
 }, {content: "1234"})
 
 function getRandomGreetingPhrase(username) {
@@ -216,172 +203,6 @@ function getShortenedText(text){
     return t
 }
 
-function createFriendCard(user){
-    let t = document.getElementById("example-friend-card")
-    let friendCard = t.cloneNode(true)
-    let bannerImg = friendCard.children[0]
-    let pfpImg = friendCard.children[1].children[0]
-    let statusIcon = friendCard.children[1].children[1]
-    let usernameText = friendCard.children[1].children[2].children[0]
-    let pronounText = friendCard.children[1].children[2].children[1]
-    let statusText = friendCard.children[1].children[3]
-    let bio = user.Bio
-    if(bio.BannerURL === undefined || bio.BannerURL === "")
-        bio.BannerURL = "media/defaultbanner.jpg"
-    bannerImg.src = bio.BannerURL
-    if(bio.PfpURL === undefined || bio.PfpURL === "")
-        bio.PfpURL = "media/defaultpfp.jpg"
-    pfpImg.src = bio.PfpURL
-    switch (bio.Status) {
-        case HypernexAPI.Users.Status.Online:
-            statusIcon.style.backgroundColor = "rgb(44, 224, 44)"
-            statusText.innerHTML = "Online"
-            break
-        case HypernexAPI.Users.Status.Absent:
-            statusIcon.style.backgroundColor = "rgb(255,187,15)"
-            statusText.innerHTML = "Absent"
-            break
-        case HypernexAPI.Users.Status.Party:
-            statusIcon.style.backgroundColor = "rgb(41,185,255)"
-            statusText.innerHTML = "Party"
-            break
-        case HypernexAPI.Users.Status.DoNotDisturb:
-            statusIcon.style.backgroundColor = "rgb(224,44,44)"
-            statusText.innerHTML = "Do Not Disturb"
-            break
-        default:
-            statusIcon.style.backgroundColor = "gray"
-            statusText.innerHTML = "Offline"
-            break
-    }
-    if(bio.DisplayName !== undefined && bio.DisplayName !== "")
-        usernameText.innerHTML = bio.DisplayName
-    else
-        usernameText.innerHTML = "@" + user.Username
-    if(bio.StatusText !== undefined && bio.StatusText !== "" && bio.Status !== HypernexAPI.Users.Status.Offline)
-        statusText.innerHTML = getShortenedText(bio.StatusText)
-    if(bio.Pronouns !== undefined){
-        let text = ""
-        for(let i = 0; i < bio.Pronouns.Display.length; i++)
-            text += bio.Pronouns.Display[i] + "/"
-        text = text.substring(text.length - 1, 0)
-        pronounText.innerHTML = text
-        pronounText.hidden = false
-    }
-    friendCard.hidden = false
-    friendCard.id = ""
-    t.parentNode.appendChild(friendCard)
-}
-
-function createFriendRequestCard(user, localUserId, localUserToken){
-    let t = document.getElementById("example-friend-request-card")
-    let friendCard = t.cloneNode(true)
-    let bannerImg = friendCard.children[0]
-    let pfpImg = friendCard.children[1].children[0]
-    let statusIcon = friendCard.children[1].children[1]
-    let usernameText = friendCard.children[1].children[2].children[0]
-    let pronounText = friendCard.children[1].children[2].children[1]
-    let statusText = friendCard.children[1].children[3]
-    let acceptButton = friendCard.children[2]
-    let declineButton = friendCard.children[3]
-    let bio = user.Bio
-    if(bio.BannerURL === undefined || bio.BannerURL === "")
-        bio.BannerURL = "media/defaultbanner.jpg"
-    bannerImg.src = bio.BannerURL
-    if(bio.PfpURL === undefined || bio.PfpURL === "")
-        bio.PfpURL = "media/defaultpfp.jpg"
-    pfpImg.src = bio.PfpURL
-    switch (bio.Status) {
-        case HypernexAPI.Users.Status.Online:
-            statusIcon.style.backgroundColor = "rgb(44, 224, 44)"
-            statusText.innerHTML = "Online"
-            break
-        case HypernexAPI.Users.Status.Absent:
-            statusIcon.style.backgroundColor = "rgb(255,187,15)"
-            statusText.innerHTML = "Absent"
-            break
-        case HypernexAPI.Users.Status.Party:
-            statusIcon.style.backgroundColor = "rgb(41,185,255)"
-            statusText.innerHTML = "Party"
-            break
-        case HypernexAPI.Users.Status.DoNotDisturb:
-            statusIcon.style.backgroundColor = "rgb(224,44,44)"
-            statusText.innerHTML = "Do Not Disturb"
-            break
-        default:
-            statusIcon.style.backgroundColor = "gray"
-            statusText.innerHTML = "Offline"
-            break
-    }
-    if(bio.DisplayName !== undefined && bio.DisplayName !== "")
-        usernameText.innerHTML = bio.DisplayName
-    else
-        usernameText.innerHTML = "@" + user.Username
-    if(bio.StatusText !== undefined && bio.StatusText !== "" && bio.Status !== HypernexAPI.Users.Status.Offline)
-        statusText.innerHTML = getShortenedText(bio.StatusText)
-    if(bio.Pronouns !== undefined){
-        let text = ""
-        for(let i = 0; i < bio.Pronouns.Display.length; i++)
-            text += bio.Pronouns.Display[i] + "/"
-        text = text.substring(text.length - 1, 0)
-        pronounText.innerHTML = text
-        pronounText.hidden = false
-    }
-    friendCard.hidden = false
-    friendCard.id = ""
-    let acceptButtonClicked = false
-    acceptButton.addEventListener("click", () => {
-        if(!acceptButtonClicked){
-            acceptButtonClicked = true
-            HypernexAPI.Users.acceptFriendRequest(localUserId, localUserToken.content, user.Id).then(r => {
-                if(r){
-                    friendCard.remove()
-                }
-                else{
-                    window.sendSweetAlert({
-                        icon: 'error',
-                        title: 'Failed to accept Friend Request'
-                    })
-                    acceptButtonClicked = false
-                }
-            }).catch(err => {
-                window.sendSweetAlert({
-                    icon: 'error',
-                    title: 'Failed to accept Friend Request'
-                })
-                console.log(err)
-                acceptButtonClicked = false
-            })
-        }
-    })
-    let declineButtonClicked = false
-    declineButton.addEventListener("click", () => {
-        if(!declineButtonClicked){
-            declineButtonClicked = true
-            HypernexAPI.Users.declineFriendRequest(localUserId, localUserToken.content, user.Id).then(r => {
-                if(r){
-                    friendCard.remove()
-                }
-                else{
-                    window.sendSweetAlert({
-                        icon: 'error',
-                        title: 'Failed to decline Friend Request'
-                    })
-                    declineButtonClicked = false
-                }
-            }).catch(err => {
-                window.sendSweetAlert({
-                    icon: 'error',
-                    title: 'Failed to decline Friend Request'
-                })
-                console.log(err)
-                declineButtonClicked = false
-            })
-        }
-    })
-    t.parentNode.appendChild(friendCard)
-}
-
 function showTab(tabButton, tabToShow){
     for(let key of Object.keys(TabButtons)){
         let value = TabButtons[key]
@@ -397,11 +218,336 @@ function showTab(tabButton, tabToShow){
 
 function setupTabButtonEvents(){
     TabButtons.HomeButton.addEventListener("click", () => showTab(TabButtons.HomeButton, Tabs.Home))
-    TabButtons.ProfileButton.addEventListener("click", () => showTab(TabButtons.ProfileButton, Tabs.Profile))
+    TabButtons.ProfileButton.addEventListener("click", () => {
+        targetProfileUser = localUser
+        viewSelectedProfile()
+        showTab(TabButtons.ProfileButton, Tabs.Profile)
+    })
     TabButtons.SettingsButton.addEventListener("click", () => showTab(TabButtons.SettingsButton, Tabs.Settings))
 }
 
+function setupFriends(){
+    HomeFriendsListLeftButton.addEventListener("click", () => FriendsList.scrollLeft -= 400)
+    HomeFriendsListRightButton.addEventListener("click", () => FriendsList.scrollLeft += 400)
+    let f = sortOfflineFriends(localUser.Friends).TotalFriends
+    for(let i = 0; i < f.length; i++){
+        let friend = f[i]
+        HypernexAPI.Users.getUserFromUserId(friend).then(user => {
+            if(user !== undefined){
+                createFriendCard(user)
+            }
+        })
+    }
+    toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked)
+    ShowOfflineFriendsCheckbox.addEventListener("click", () => toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked))
+    document.getElementById("friends-label").innerHTML = "Friends (" + f.length + ")"
+    if(f.length <= 0){
+        HomeFriendsListLeftButton.hidden = true
+        HomeFriendsListRightButton.hidden = true
+        ShowOfflineFriendsCheckbox.parentNode.hidden = true
+    }
+    HomeFriendRequestsListLeftButton.addEventListener("click", () => FriendRequestsList.scrollLeft -= 400)
+    HomeFriendRequestsListRightButton.addEventListener("click", () => FriendRequestsList.scrollLeft += 400)
+    let fr = localUser.FriendRequests
+    for(let i = 0; i < fr.length; i++){
+        let friendRequest = fr[i]
+        HypernexAPI.Users.getUserFromUserId(friendRequest).then(user => {
+            if(user !== undefined){
+                createFriendRequestCard(user)
+            }
+        })
+    }
+    document.getElementById("friend-requests-label").innerHTML = "Friend Requests (" + fr.length + ")"
+    if(fr.length <= 0){
+        HomeFriendRequestsListLeftButton.hidden = true
+        HomeFriendRequestsListRightButton.hidden = true
+    }
+}
+
+function renderProfile(user){
+    let bio = user.Bio
+    let profileTab = document.getElementById("profile-tab")
+    let banner = profileTab.children[0].children[0]
+    let pfp = profileTab.children[0].children[1]
+    let statusIcon = profileTab.children[0].children[2]
+    let username = profileTab.children[1].children[0]
+    let username2 = profileTab.children[1].children[1]
+    let pronounCard = profileTab.children[1].children[2]
+    let status = profileTab.children[2]
+    let description = profileTab.children[3]
+    if(bio.BannerURL !== undefined && bio.BannerURL !== "")
+        banner.src = bio.BannerURL
+    else
+        banner.src = "media/defaultbanner.jpg"
+    if(bio.PfpURL !== undefined && bio.PfpURL !== "")
+        pfp.src = bio.PfpURL
+    else
+        pfp.src = "media/defaultpfp.jpg"
+    statusIcon.style.backgroundColor = getColorFromStatus(bio.Status)
+    if(bio.DisplayName !== undefined && bio.DisplayName !== ""){
+        username.innerHTML = bio.DisplayName
+        username2.innerHTML = "@" + user.Username
+        username2.hidden = false
+    }
+    else{
+        username.innerHTML = "@" + user.Username
+        username2.hidden = true
+    }
+    if(bio.Pronouns !== undefined){
+        pronounCard.innerHTML = getTextForPronouns(bio.Pronouns)
+        pronounCard.hidden = false
+    }
+    else
+        pronounCard.hidden = true
+    if(bio.StatusText !== undefined && bio.StatusText !== "")
+        status.innerHTML = bio.StatusText
+    else
+        status.innerHTML = getTextFromStatus(bio.Status)
+    description.innerHTML = bio.Description
+}
+
+function viewSelectedProfile() {
+    if (targetProfileUser === undefined)
+        targetProfileUser = localUser
+    let isLocalUser = targetProfileUser.Id === localUser.Id
+    TabContents.Profile.EditProfile.hidden = !isLocalUser
+    if (isLocalUser) {
+        TabContents.Profile.AddFriendButton.hidden = true
+        TabContents.Profile.RemoveFriendButton.hidden = true
+        TabContents.Profile.BlockButton.hidden = true
+        TabContents.Profile.UnblockButton.hidden = true
+        TabContents.Profile.FollowButton.hidden = true
+        TabContents.Profile.UnfollowButton.hidden = true
+    } else {
+        let isFriends = localUser.Friends.includes(targetProfileUser.Id)
+        let sentFriendRequest = localUser.OutgoingFriendRequests.includes(targetProfileUser.Id)
+        let isBlocked = localUser.BlockedUsers.includes(targetProfileUser.Id)
+        let isFollowing = localUser.Following.includes(targetProfileUser.Id)
+        TabContents.Profile.AddFriendButton.hidden = isFriends || sentFriendRequest
+        TabContents.Profile.RemoveFriendButton.hidden = !isFriends
+        TabContents.Profile.BlockButton.hidden = isBlocked
+        TabContents.Profile.UnblockButton.hidden = !isBlocked
+        TabContents.Profile.FollowButton.hidden = isFollowing
+        TabContents.Profile.UnfollowButton.hidden = !isFollowing
+    }
+    if (isLocalUser)
+        renderProfile(localUser)
+    else {
+        renderProfile(targetProfileUser)
+    }
+    isSendingFriendRequest = false
+    isRemovingFriend = false
+    isBlockingUser = false
+    isUnblockingUser = false
+    isFollowUser = false
+    isUnfollowUser = false
+}
+
+function registerProfileButtonEvents(){
+    TabContents.Profile.AddFriendButton.addEventListener("click", () => {
+        if(!isSendingFriendRequest){
+            isSendingFriendRequest = true
+            HypernexAPI.Users.sendFriendRequest(localUser.Id, localToken.content, targetProfileUser.Id).then(r => {
+                if(r){
+                    TabContents.Profile.AddFriendButton.hidden = true
+                    TabContents.Profile.RemoveFriendButton.hidden = false
+                    isRemovingFriend = false
+                }
+                else{
+                    isSendingFriendRequest = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Send Friend Request!"
+                    })
+                }
+            }).catch(err => {
+                isSendingFriendRequest = false
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Send Friend Request!"
+                })
+                console.log(err)
+            })
+        }
+    })
+    TabContents.Profile.RemoveFriendButton.addEventListener("click", () => {
+        if(!isRemovingFriend){
+            isRemovingFriend = true
+            HypernexAPI.Users.removeFriend(localUser.Id, localToken.content, targetProfileUser.Id).then(r => {
+                if(r){
+                    TabContents.Profile.RemoveFriendButton.hidden = true
+                    TabContents.Profile.AddFriendButton.hidden = false
+                    isSendingFriendRequest = false
+                }
+                else{
+                    isRemovingFriend = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Remove Friend!"
+                    })
+                }
+            }).catch(err => {
+                isRemovingFriend = false
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Remove Friend!"
+                })
+                console.log(err)
+            })
+        }
+    })
+    TabContents.Profile.BlockButton.addEventListener("click", () => {
+        if(!isBlockingUser){
+            isBlockingUser = true
+            HypernexAPI.Users.blockUser(localUser.Id, localToken.content, targetProfileUser.Id).then(r => {
+                if(r){
+                    TabContents.Profile.BlockButton.hidden = true
+                    TabContents.Profile.UnblockButton.hidden = true
+                    isUnblockingUser = false
+                }
+                else{
+                    isBlockingUser = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Block User!"
+                    })
+                }
+            }).catch(err => {
+                isBlockingUser = false
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Block User!"
+                })
+                console.log(err)
+            })
+        }
+    })
+    TabContents.Profile.UnblockButton.addEventListener("click", () => {
+        if(!isUnblockingUser){
+            isUnblockingUser = true
+            HypernexAPI.Users.unblockUser(localUser.Id, localToken.content, targetProfileUser.Id).then(r => {
+                if(r){
+                    TabContents.Profile.UnblockButton.hidden = true
+                    TabContents.Profile.BlockButton.hidden = false
+                    isBlockingUser = false
+                }
+                else{
+                    isUnblockingUser = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Unblock User!"
+                    })
+                }
+            }).catch(err => {
+                isUnblockingUser = false
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Unblock User!"
+                })
+                console.log(err)
+            })
+        }
+    })
+    TabContents.Profile.FollowButton.addEventListener("click", () => {
+        if(!isFollowUser){
+            isFollowUser = true
+            HypernexAPI.Users.followUser(localUser.Id, localToken.content, targetProfileUser.Id).then(r => {
+                if(r){
+                    TabContents.Profile.FollowButton.hidden = true
+                    TabContents.Profile.UnfollowButton.hidden = false
+                    isUnfollowUser = false
+                }
+                else{
+                    isFollowUser = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Block User!"
+                    })
+                }
+            }).catch(err => {
+                isFollowUser = false
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Block User!"
+                })
+                console.log(err)
+            })
+        }
+    })
+    TabContents.Profile.UnfollowButton.addEventListener("click", () => {
+        if(!isUnfollowUser){
+            isUnfollowUser = true
+            HypernexAPI.Users.unfollowUser(localUser.Id, localToken.content, targetProfileUser.Id).then(r => {
+                if(r){
+                    TabContents.Profile.UnfollowButton.hidden = true
+                    TabContents.Profile.FollowButton.hidden = false
+                    isFollowUser = false
+                }
+                else{
+                    isUnfollowUser = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Unblock User!"
+                    })
+                }
+            }).catch(err => {
+                isUnfollowUser = false
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Unblock User!"
+                })
+                console.log(err)
+            })
+        }
+    })
+}
+
+function setupEditProfile(){
+    TabContents.Profile.EditProfileCardContent.children[0].addEventListener("click", () => TabContents.Profile.EditProfileCardContent.parentNode.hidden = true)
+    TabContents.Profile.EditProfile.addEventListener("click", () => {
+        TabContents.Profile.EditProfileCardContent.parentNode.hidden = false
+    })
+}
+
+function emailCheck(){
+    if(!localUser.isEmailVerified){
+        createDashboardNotice(Notices.Info, "Email not Verified!", "Please verify your email! It will protect your account from loss and theft! You can navigate to the Settings panel to set this up.")
+        TabContents.Settings.EmailVerificationButton.addEventListener("click", () => {
+            if(!didSendEmailVerification){
+                didSendEmailVerification = true
+                HypernexAPI.Users.sendVerificationEmail(localUser.Id, localToken.content).then(r => {
+                    if(r)
+                        window.sendSweetAlert({
+                            icon: 'success',
+                            title: "Sent Verification Email!",
+                            text: "Please follow the link from the email in your inbox to verify your email"
+                        })
+                    else {
+                        didSendEmailVerification = false
+                        window.sendSweetAlert({
+                            icon: 'error',
+                            title: "Could not send Verification Email!"
+                        })
+                    }
+                }).catch(err => {
+                    didSendEmailVerification = false
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Could not send Verification Email!"
+                    })
+                    console.log(err)
+                })
+            }
+        })
+    }
+    else{
+        document.getElementById("email-verification-status").innerHTML = "Email Verification Status: Verified"
+        document.getElementById("verify-email-button").hidden = true
+    }
+}
+
 function setupSettingsTab(userdata, token){
+    emailCheck()
     document.getElementById("change-email").addEventListener("click", () => {
         if(!didChangeEmail){
             didChangeEmail = true
@@ -499,7 +645,7 @@ function setupSettingsTab(userdata, token){
     // Close button for 2FA Wizard
     TabContents.Settings.TwoFAWizard.children[0].children[0].addEventListener("click", () => {
         isEnabling2FA = false
-        TabContents.Settings.TwoFAWizardInput.hidden = true
+        TabContents.Settings.TwoFAWizard.hidden = true
     })
     document.getElementById("enable-2fa-from-wizard").addEventListener("click", () => {
         if(isEnabling2FA){
@@ -566,6 +712,194 @@ function setupSettingsTab(userdata, token){
             })
         }
     })
+}
+
+function getColorFromStatus(status){
+    switch (status) {
+        case HypernexAPI.Users.Status.Online:
+            return "rgb(44, 224, 44)"
+        case HypernexAPI.Users.Status.Absent:
+            return "rgb(255,187,15)"
+        case HypernexAPI.Users.Status.Party:
+            return "rgb(41,185,255)"
+        case HypernexAPI.Users.Status.DoNotDisturb:
+            return "rgb(224,44,44)"
+        default:
+            return "gray"
+    }
+}
+
+function getTextFromStatus(status){
+    switch (status) {
+        case HypernexAPI.Users.Status.Online:
+            return "Online"
+        case HypernexAPI.Users.Status.Absent:
+            return "Absent"
+        case HypernexAPI.Users.Status.Party:
+            return "Party"
+        case HypernexAPI.Users.Status.DoNotDisturb:
+            return "Do Not Disturb"
+        default:
+            return "Offline"
+    }
+}
+
+function getTextForPronouns(pronouns){
+    let text = ""
+    for(let i = 0; i < pronouns.Display.length; i++){
+        if(!pronouns.DisplayThree && i === 2){
+            break
+        }
+        let c = pronouns.Display[i]
+        let p
+        switch (pronountools.getCaseById(c)) {
+            case pronountools.Cases.NominativeCase:
+                p = pronouns.NominativeCase
+                break
+            case pronountools.Cases.AccusativeCase:
+                p = pronouns.AccusativeCase
+                break
+            case pronountools.Cases.ReflexivePronoun:
+                p = pronouns.ReflexivePronoun
+                break
+            case pronountools.Cases.IndependentGenitiveCase:
+                p = pronouns.IndependentGenitiveCase
+                break
+            case pronountools.Cases.DependentGenitiveCase:
+                p = pronouns.DependentGenitiveCase
+                break
+        }
+        text += p + "/"
+    }
+    text = text.substring(text.length - 1, 0)
+    return text
+}
+
+function createFriendCard(user){
+    let t = document.getElementById("example-friend-card")
+    let friendCard = t.cloneNode(true)
+    let bannerImg = friendCard.children[0]
+    let pfpImg = friendCard.children[1].children[0]
+    let statusIcon = friendCard.children[1].children[1]
+    let usernameText = friendCard.children[1].children[2].children[0]
+    let pronounText = friendCard.children[1].children[2].children[1]
+    let statusText = friendCard.children[1].children[3]
+    let bio = user.Bio
+    if(bio.BannerURL === undefined || bio.BannerURL === "")
+        bio.BannerURL = "media/defaultbanner.jpg"
+    bannerImg.src = bio.BannerURL
+    if(bio.PfpURL === undefined || bio.PfpURL === "")
+        bio.PfpURL = "media/defaultpfp.jpg"
+    pfpImg.src = bio.PfpURL
+    statusIcon.style.backgroundColor = getColorFromStatus(bio.Status)
+    statusText.innerHTML = getTextFromStatus(bio.Status)
+    if(bio.DisplayName !== undefined && bio.DisplayName !== "")
+        usernameText.innerHTML = bio.DisplayName
+    else
+        usernameText.innerHTML = "@" + user.Username
+    if(bio.StatusText !== undefined && bio.StatusText !== "" && bio.Status !== HypernexAPI.Users.Status.Offline)
+        statusText.innerHTML = getShortenedText(bio.StatusText)
+    if(bio.Pronouns !== undefined){
+        pronounText.innerHTML = getTextForPronouns(bio.Pronouns)
+        pronounText.hidden = false
+    }
+    friendCard.hidden = false
+    friendCard.id = ""
+    friendCard.addEventListener("click", () => {
+        targetProfileUser = user
+        viewSelectedProfile()
+        showTab(TabButtons.ProfileButton, Tabs.Profile)
+    })
+    t.parentNode.appendChild(friendCard)
+}
+
+function createFriendRequestCard(user){
+    let t = document.getElementById("example-friend-request-card")
+    let friendCard = t.cloneNode(true)
+    let bannerImg = friendCard.children[0]
+    let pfpImg = friendCard.children[1].children[0]
+    let statusIcon = friendCard.children[1].children[1]
+    let usernameText = friendCard.children[1].children[2].children[0]
+    let pronounText = friendCard.children[1].children[2].children[1]
+    let statusText = friendCard.children[1].children[3]
+    let acceptButton = friendCard.children[2]
+    let declineButton = friendCard.children[3]
+    let bio = user.Bio
+    if(bio.BannerURL === undefined || bio.BannerURL === "")
+        bio.BannerURL = "media/defaultbanner.jpg"
+    bannerImg.src = bio.BannerURL
+    if(bio.PfpURL === undefined || bio.PfpURL === "")
+        bio.PfpURL = "media/defaultpfp.jpg"
+    pfpImg.src = bio.PfpURL
+    statusIcon.style.backgroundColor = getColorFromStatus(bio.Status)
+    statusText.innerHTML = getTextFromStatus(bio.Status)
+    if(bio.DisplayName !== undefined && bio.DisplayName !== "")
+        usernameText.innerHTML = bio.DisplayName
+    else
+        usernameText.innerHTML = "@" + user.Username
+    if(bio.StatusText !== undefined && bio.StatusText !== "" && bio.Status !== HypernexAPI.Users.Status.Offline)
+        statusText.innerHTML = getShortenedText(bio.StatusText)
+    if(bio.Pronouns !== undefined){
+        let text = ""
+        for(let i = 0; i < bio.Pronouns.Display.length; i++)
+            text += bio.Pronouns.Display[i] + "/"
+        text = text.substring(text.length - 1, 0)
+        pronounText.innerHTML = text
+        pronounText.hidden = false
+    }
+    friendCard.hidden = false
+    friendCard.id = ""
+    let acceptButtonClicked = false
+    acceptButton.addEventListener("click", () => {
+        if(!acceptButtonClicked){
+            acceptButtonClicked = true
+            HypernexAPI.Users.acceptFriendRequest(localUser.Id, localToken.content, user.Id).then(r => {
+                if(r){
+                    friendCard.remove()
+                }
+                else{
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: 'Failed to accept Friend Request'
+                    })
+                    acceptButtonClicked = false
+                }
+            }).catch(err => {
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: 'Failed to accept Friend Request'
+                })
+                console.log(err)
+                acceptButtonClicked = false
+            })
+        }
+    })
+    let declineButtonClicked = false
+    declineButton.addEventListener("click", () => {
+        if(!declineButtonClicked){
+            declineButtonClicked = true
+            HypernexAPI.Users.declineFriendRequest(localUser.Id, localToken.content, user.Id).then(r => {
+                if(r){
+                    friendCard.remove()
+                }
+                else{
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: 'Failed to decline Friend Request'
+                    })
+                    declineButtonClicked = false
+                }
+            }).catch(err => {
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: 'Failed to decline Friend Request'
+                })
+                console.log(err)
+                declineButtonClicked = false
+            })
+        }
+    })
+    t.parentNode.appendChild(friendCard)
 }
 
 /*

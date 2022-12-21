@@ -83,12 +83,31 @@
 
 <div class="centered-list-main" id="profile-tab" hidden>
     <div>
-        <img src="media/defaultbanner.jpg" alt="Banner" style="min-width: 100%; max-width: 100%; max-height: 300px; object-fit: cover; border-radius: 10px;">
-        <img src="media/defaultpfp.jpg" alt="pfp" style="position: absolute; min-width: 200px; max-width: 200px; min-height: 200px; max-height: 200px; object-fit: cover; border-radius: 10px; left: 30px; top: 135px;">
-        <div style="position: absolute; width: 50px; height:50px; border-radius: 50px; border-style: solid; border-width: 1px; border-color: white; background-color: gray; top: 300px; left: 195px;"></div>
+        <img src="media/defaultbanner.jpg" alt="Banner" style="position: absolute; top: 20px; min-width: 100%; max-width: 100%; max-height: 320px; object-fit: cover; border-radius: 10px;">
+        <img src="media/defaultpfp.jpg" alt="pfp" style="position: absolute; min-width: 200px; max-width: 200px; min-height: 200px; max-height: 200px; object-fit: cover; border-radius: 10px; left: 30px; top: 165px;">
+        <div style="position: absolute; width: 50px; height:50px; border-radius: 50px; border-style: solid; border-width: 1px; border-color: white; background-color: gray; top: 330px; left: 195px;"></div>
     </div>
-    <a class="dark-text" style="position: absolute; top: 350px; left: 30px; font-size: 32px;">Username</a>
-    <a class="dark-text" style="position: absolute; top: 420px; left: 30px;">Description</a>
+    <div style="position: absolute; top: 390px; left: 30px;">
+        <a class="dark-text" style="font-size: 32px;">Username</a>
+        <a class="dark-text" style="position: relative; top: -5px;"></a>
+        <a class="pronoun-card" style="font-size: 16px; position: relative; top: -5px;" hidden></a>
+    </div>
+    <a class="dark-text" style="position: absolute; top: 440px; left: 30px; max-width: 45%; word-break: break-word;">Status</a>
+    <a class="dark-text" style="position: absolute; top: 470px; left: 30px; max-width: 45%; word-break: break-word;"></a>
+    <div class="dark-theme-secondary user-actions-profile" style="position: absolute; top: 470px; right: 0; min-width: 45%; min-height: 400px; border-radius: 10px;">
+        <a style="font-size: 32px;" class="dark-text">User Actions</a>
+        <p></p>
+        <button class="pure-button pure-button-primary" id="profile-add-friend">Add Friend</button>
+        <button class="error-button pure-button" id="profile-remove-friend">Remove Friend</button>
+        <p></p>
+        <button class="error-button pure-button" id="profile-block">Block</button>
+        <button class="pure-button pure-button-primary" id="profile-unblock">Unblock</button>
+        <p></p>
+        <button class="pure-button pure-button-primary" id="profile-follow">Follow</button>
+        <button class="error-button pure-button" id="profile-unfollow">Unfollow</button>
+        <p></p>
+        <button class="pure-button pure-button-primary" id="profile-edit">Edit Profile</button>
+    </div>
 </div>
 
 <div class="centered-list-main" id="settings-tab" hidden>
@@ -156,6 +175,42 @@
         <label><input type="text" class="dark-theme-secondary dark-text no-input-border" style="width: 70%; height: 50px; text-align: center; font-size: 32px" id="verify-2fa-code"></label>
         <p></p>
         <button class="pure-button pure-button-primary" style="width: 90%" id="enable-2fa-from-wizard">Enable 2FA</button>
+    </div>
+</div>
+
+<div class="fixed-popup" id="edit-profile-popup" hidden>
+    <div class=" fixed-popup-card dark-theme">
+        <button style="position: relative; top: 5px; right: 5px; float: right; border-style: none; background-color: rgba(0, 0, 0, 0); cursor: pointer; color: #525252;">X</button>
+        <p></p>
+        <a class="dark-text">Banner</a>
+        <p></p>
+        <img src="media/defaultbanner.jpg" style="min-width: 100px; max-width: 100px; min-height: 50px; max-height: 50px;">
+        <form class="pure-form">
+            <input type="file">
+        </form>
+        <p></p>
+        <a class="dark-text">Profile Picture</a>
+        <p></p>
+        <img src="media/defaultpfp.jpg" style="min-width: 50px; max-width: 50px; min-height: 50px; max-height: 50px;">
+        <form class="pure-form">
+            <input type="file">
+        </form>
+        <p></p>
+        <a class="dark-text">DisplayName</a>
+        <p></p>
+        <label><input type="text" class="dark-theme-secondary dark-text no-input-border" style="width: 70%; height: 25px; text-align: center; font-size: 20px"></label>
+        <p></p>
+        <a class="dark-text">Status</a>
+        <p></p>
+        <label><input type="radio" name="select-status" value="0">Invisible</label>
+        <label><input type="radio" name="select-status" value="1">Online</label>
+        <label><input type="radio" name="select-status" value="2">Absent</label>
+        <label><input type="radio" name="select-status" value="3">Party</label>
+        <label><input type="radio" name="select-status" value="4">Do Not Disturb</label>
+        <p></p>
+        <a class="dark-text">StatusText</a>
+        <p></p>
+        <label><input type="text" class="dark-theme-secondary dark-text no-input-border" style="width: 70%; height: 25px; text-align: center; font-size: 20px"></label>
     </div>
 </div>
 
