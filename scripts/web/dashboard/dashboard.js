@@ -1,4 +1,3 @@
-import * as webtools from '../../webtools.js'
 import * as HypernexAPI from '../../HypernexAPI.js'
 import * as pronountools from '../../pronountools.js'
 
@@ -6,6 +5,10 @@ let localUser
 let localToken
 
 let targetProfileUser
+
+let editBio
+
+const ALLOWED_MEDIA_TYPES = ["jpg", "jpeg", "gif", "png", "mp4"]
 
 const FriendsList = document.getElementById("friends-list")
 const FriendRequestsList = document.getElementById("friend-requests-list")
@@ -76,6 +79,7 @@ function renderPage(userdata, token){
     localUser = userdata
     localToken = token
     targetProfileUser = localUser
+    editBio = userdata.Bio
     document.getElementById("hiusn").innerHTML = getRandomGreetingPhrase(userdata.Username)
     setupTabButtonEvents()
     setupFriends()
@@ -502,10 +506,99 @@ function registerProfileButtonEvents(){
     })
 }
 
+function validMediaFile(filename){
+    let arr = filename.split('.')
+    let type = arr[arr.length - 1].toLowerCase()
+    return ALLOWED_MEDIA_TYPES.indexOf(type) >= 0
+}
+
+function getStatusFromRadios(invisibleRadio, onlineRadio, absentRadio, partyRadio, dndRadio){
+    if(invisibleRadio.value)
+        return HypernexAPI.Users.Status.Offline
+    if(onlineRadio.value)
+        return HypernexAPI.Users.Status.Online
+    if(absentRadio)
+        return HypernexAPI.Users.Status.Absent
+    if(partyRadio)
+        return HypernexAPI.Users.Status.Party
+    if(dndRadio)
+        return HypernexAPI.Users.Status.DoNotDisturb
+    return HypernexAPI.Users.Status.Online
+}
+
 function setupEditProfile(){
     TabContents.Profile.EditProfileCardContent.children[0].addEventListener("click", () => TabContents.Profile.EditProfileCardContent.parentNode.hidden = true)
     TabContents.Profile.EditProfile.addEventListener("click", () => {
         TabContents.Profile.EditProfileCardContent.parentNode.hidden = false
+    })
+    let bannerPreview = TabContents.Profile.EditProfileCardContent.children[4]
+    let bannerInput = TabContents.Profile.EditProfileCardContent.children[5].children[0]
+    let pfpPreview = TabContents.Profile.EditProfileCardContent.children[9]
+    let pfpInput = TabContents.Profile.EditProfileCardContent.children[10].children[0]
+    let displaynameInput = TabContents.Profile.EditProfileCardContent.children[14].children[0]
+    let invisibleRadio = TabContents.Profile.EditProfileCardContent.children[18].children[0]
+    let onlineRadio = TabContents.Profile.EditProfileCardContent.children[19].children[0]
+    let absentRadio = TabContents.Profile.EditProfileCardContent.children[20].children[0]
+    let partyRadio = TabContents.Profile.EditProfileCardContent.children[21].children[0]
+    let dndRadio = TabContents.Profile.EditProfileCardContent.children[22].children[0]
+    let statustextInput = TabContents.Profile.EditProfileCardContent.children[26].children[0]
+    let setpronounButton = TabContents.Profile.EditProfileCardContent.children[28]
+    let removepronounButton = TabContents.Profile.EditProfileCardContent.children[29]
+    let descriptionInput = TabContents.Profile.EditProfileCardContent.children[33].children[0]
+    let applyButton = TabContents.Profile.EditProfileCardContent.children[35]
+    if(editBio.PfpURL !== undefined && editBio.PfpURL !== "")
+        pfpPreview.src = editBio.PfpURL
+    if(editBio.BannerURL !== undefined && editBio.BannerURL !== "")
+        bannerPreview.src = editBio.BannerURL
+    bannerInput.onchange = e => {
+        let file = e.target.files[0]
+        if(validMediaFile(file.name)){
+            let r = new FileReader()
+            r.readAsDataURL(file)
+            r.onload = readerEvent => bannerPreview.src = readerEvent.target.result
+        }
+        else{
+            bannerInput.value = ""
+            bannerPreview.src = "media/defaultbanner.jpg"
+            window.sendSweetAlert({
+                icon: 'error',
+                title: "Invalid File Type!"
+            })
+        }
+    }
+    pfpInput.onchange = e => {
+        let file = e.target.files[0]
+        if(validMediaFile(file.name)){
+            let r = new FileReader()
+            r.readAsDataURL(file)
+            r.onload = readerEvent => pfpPreview.src = readerEvent.target.result
+        }
+        else{
+            pfpInput.value = ""
+            pfpPreview.src = "media/defaultpfp.jpg"
+            window.sendSweetAlert({
+                icon: 'error',
+                title: "Invalid File Type!"
+            })
+        }
+    }
+    applyButton.addEventListener("click", () => {
+
+    })
+}
+
+function applyNoPromisesToEditBio(status, statustext, description, pronouns){
+    editBio.Status = status
+    editBio.StatusText = statustext
+    editBio.Description = description
+    editBio.Pronouns = pronouns
+    HypernexAPI.Users.updateBio(localUser.Id, localToken.content, editBio).then(r => {
+        if(r){
+            window.sendSweetAlert({
+                icon: 'success',
+                title: "Updated Bio!"
+            })
+        }
     })
 }
 
