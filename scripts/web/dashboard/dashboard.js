@@ -35,7 +35,8 @@ const TabContents = {
         FollowButton: document.getElementById("profile-follow"),
         UnfollowButton: document.getElementById("profile-unfollow"),
         EditProfile: document.getElementById("profile-edit"),
-        EditProfileCardContent: document.getElementById("edit-profile-popup").children[0]
+        EditProfileCardContent: document.getElementById("edit-profile-popup").children[0],
+        EditPronounsCardContent: document.getElementById("set-pronoun-popup").children[0]
     },
     Settings: {
         EmailVerificationButton: document.getElementById("verify-email-button"),
@@ -86,6 +87,7 @@ function renderPage(userdata, token){
     setupTabButtonEvents()
     setupFriends()
     registerProfileButtonEvents()
+    setupPronounEditor()
     setupEditProfile()
     setupSettingsTab(userdata, token)
 }
@@ -508,6 +510,37 @@ function registerProfileButtonEvents(){
     })
 }
 
+function getValueOfRadioName(name, d){
+    try{
+        return document.querySelector("input[type='radio'][name=" +name +"]:checked").value
+    }
+    catch (e) {
+        return d
+    }
+}
+
+function setupPronounEditor(){
+    TabContents.Profile.EditPronounsCardContent.children[0].addEventListener("click", () => TabContents.Profile.EditPronounsCardContent.parentNode.hidden = true)
+    let applyButton = TabContents.Profile.EditPronounsCardContent.children[82]
+    applyButton.addEventListener("click", () => {
+        let selectedNominative = Number(getValueOfRadioName("nominative", "-1"))
+        let selectedAccusative = Number(getValueOfRadioName("accusative", "-1"))
+        let selectedReflexive = Number(getValueOfRadioName("reflexive", "-1"))
+        let selectedIndependent = Number(getValueOfRadioName("independent", "-1"))
+        let selectedDependent = Number(getValueOfRadioName("dependent", "-1"))
+        let displayThree = TabContents.Profile.EditPronounsCardContent.children[80].children[0].checked
+        editBio.Pronouns = {
+            nominativeId: selectedNominative,
+            accusativeId: selectedAccusative,
+            reflexiveId: selectedReflexive,
+            independentId: selectedIndependent,
+            dependentId: selectedDependent,
+            DisplayThree: displayThree
+        }
+        TabContents.Profile.EditPronounsCardContent.parentNode.hidden = true
+    })
+}
+
 function validMediaFile(filename){
     let arr = filename.split('.')
     let type = arr[arr.length - 1].toLowerCase()
@@ -515,25 +548,21 @@ function validMediaFile(filename){
 }
 
 function getStatusFromRadios(invisibleRadio, onlineRadio, absentRadio, partyRadio, dndRadio){
-    if(invisibleRadio.value)
+    if(invisibleRadio.checked)
         return HypernexAPI.Users.Status.Offline
-    if(onlineRadio.value)
+    if(onlineRadio.checked)
         return HypernexAPI.Users.Status.Online
-    if(absentRadio.value)
+    if(absentRadio.checked)
         return HypernexAPI.Users.Status.Absent
-    if(partyRadio.value)
+    if(partyRadio.checked)
         return HypernexAPI.Users.Status.Party
-    if(dndRadio.value)
+    if(dndRadio.checked)
         return HypernexAPI.Users.Status.DoNotDisturb
     return HypernexAPI.Users.Status.Online
 }
 
 function setupEditProfile(){
     TabContents.Profile.EditProfileCardContent.children[0].addEventListener("click", () => TabContents.Profile.EditProfileCardContent.parentNode.hidden = true)
-    TabContents.Profile.EditProfile.addEventListener("click", () => {
-        editBio = localUser.Bio
-        TabContents.Profile.EditProfileCardContent.parentNode.hidden = false
-    })
     let bannerPreview = TabContents.Profile.EditProfileCardContent.children[4]
     let bannerInput = TabContents.Profile.EditProfileCardContent.children[5].children[0]
     let pfpPreview = TabContents.Profile.EditProfileCardContent.children[9]
@@ -549,6 +578,13 @@ function setupEditProfile(){
     let removepronounButton = TabContents.Profile.EditProfileCardContent.children[29]
     let descriptionInput = TabContents.Profile.EditProfileCardContent.children[33].children[0]
     let applyButton = TabContents.Profile.EditProfileCardContent.children[35]
+    TabContents.Profile.EditProfile.addEventListener("click", () => {
+        editBio = localUser.Bio
+        displaynameInput.value = editBio.DisplayName
+        statustextInput.value = editBio.StatusText
+        descriptionInput.value = editBio.Description
+        TabContents.Profile.EditProfileCardContent.parentNode.hidden = false
+    })
     if(editBio.PfpURL !== undefined && editBio.PfpURL !== "")
         pfpPreview.src = editBio.PfpURL
     if(editBio.BannerURL !== undefined && editBio.BannerURL !== "")
@@ -589,6 +625,8 @@ function setupEditProfile(){
             })
         }
     }
+    setpronounButton.addEventListener("click", () => TabContents.Profile.EditPronounsCardContent.parentNode.hidden = false)
+    removepronounButton.addEventListener("click", () => editBio.Pronouns = undefined)
     applyButton.addEventListener("click", () => {
         let status = getStatusFromRadios(invisibleRadio, onlineRadio, absentRadio, partyRadio, dndRadio)
         if(uploadedBanner !== undefined && uploadedPfp !== undefined){
