@@ -74,6 +74,8 @@ let isBlockingUser = false
 let isUnblockingUser = false
 let isFollowUser = false
 let isUnfollowUser = false
+let uploadedBanner
+let uploadedPfp
 
 function renderPage(userdata, token){
     localUser = userdata
@@ -517,11 +519,11 @@ function getStatusFromRadios(invisibleRadio, onlineRadio, absentRadio, partyRadi
         return HypernexAPI.Users.Status.Offline
     if(onlineRadio.value)
         return HypernexAPI.Users.Status.Online
-    if(absentRadio)
+    if(absentRadio.value)
         return HypernexAPI.Users.Status.Absent
-    if(partyRadio)
+    if(partyRadio.value)
         return HypernexAPI.Users.Status.Party
-    if(dndRadio)
+    if(dndRadio.value)
         return HypernexAPI.Users.Status.DoNotDisturb
     return HypernexAPI.Users.Status.Online
 }
@@ -529,6 +531,7 @@ function getStatusFromRadios(invisibleRadio, onlineRadio, absentRadio, partyRadi
 function setupEditProfile(){
     TabContents.Profile.EditProfileCardContent.children[0].addEventListener("click", () => TabContents.Profile.EditProfileCardContent.parentNode.hidden = true)
     TabContents.Profile.EditProfile.addEventListener("click", () => {
+        editBio = localUser.Bio
         TabContents.Profile.EditProfileCardContent.parentNode.hidden = false
     })
     let bannerPreview = TabContents.Profile.EditProfileCardContent.children[4]
@@ -552,12 +555,14 @@ function setupEditProfile(){
         bannerPreview.src = editBio.BannerURL
     bannerInput.onchange = e => {
         let file = e.target.files[0]
+        uploadedBanner = e.target.files[0]
         if(validMediaFile(file.name)){
             let r = new FileReader()
             r.readAsDataURL(file)
             r.onload = readerEvent => bannerPreview.src = readerEvent.target.result
         }
         else{
+            uploadedBanner = undefined
             bannerInput.value = ""
             bannerPreview.src = "media/defaultbanner.jpg"
             window.sendSweetAlert({
@@ -568,12 +573,14 @@ function setupEditProfile(){
     }
     pfpInput.onchange = e => {
         let file = e.target.files[0]
+        uploadedPfp = e.target.files[0]
         if(validMediaFile(file.name)){
             let r = new FileReader()
             r.readAsDataURL(file)
             r.onload = readerEvent => pfpPreview.src = readerEvent.target.result
         }
         else{
+            uploadedPfp = undefined
             pfpInput.value = ""
             pfpPreview.src = "media/defaultpfp.jpg"
             window.sendSweetAlert({
@@ -583,11 +590,68 @@ function setupEditProfile(){
         }
     }
     applyButton.addEventListener("click", () => {
-
+        let status = getStatusFromRadios(invisibleRadio, onlineRadio, absentRadio, partyRadio, dndRadio)
+        if(uploadedBanner !== undefined && uploadedPfp !== undefined){
+            //banner
+            HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedBanner).then(b => {
+                if(b){
+                    editBio.BannerURL = HypernexAPI.BASE_URL + "file/" + b.UserId + "/" + b.FileId
+                    HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedPfp).then(p => {
+                        if(p){
+                            editBio.PfpURL = HypernexAPI.BASE_URL + "file/" + p.UserId + "/" + p.FileId
+                            applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
+                        }
+                    }).catch(err => {
+                        window.sendSweetAlert({
+                            icon: 'error',
+                            title: "Failed to upload banner"
+                        })
+                        console.log(err)
+                    })
+                }
+            }).catch(err => {
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to upload banner"
+                })
+                console.log(err)
+            })
+        }
+        else if(uploadedBanner !== undefined){
+            HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedBanner).then(b => {
+                if(b){
+                    editBio.BannerURL = HypernexAPI.BASE_URL + "file/" + b.UserId + "/" + b.FileId
+                    applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
+                }
+            }).catch(err => {
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to upload banner"
+                })
+                console.log(err)
+            })
+        }
+        else if(uploadedPfp !== undefined){
+            HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedPfp).then(p => {
+                if(p){
+                    editBio.PfpURL = HypernexAPI.BASE_URL + "file/" + p.UserId + "/" + p.FileId
+                    applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
+                }
+            }).catch(err => {
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to upload banner"
+                })
+                console.log(err)
+            })
+        }
+        else
+            applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
     })
 }
 
-function applyNoPromisesToEditBio(status, statustext, description, pronouns){
+function applyNoPromisesToEditBio(displayname, status, statustext, description, pronouns){
+    editBio.DisplayName = displayname
     editBio.Status = status
     editBio.StatusText = statustext
     editBio.Description = description
