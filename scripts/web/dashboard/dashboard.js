@@ -1,5 +1,6 @@
 import * as HypernexAPI from '../../HypernexAPI.js'
 import * as pronountools from '../../pronountools.js'
+import * as webtools from '../../webtools.js'
 
 let localUser
 let localToken
@@ -61,6 +62,8 @@ const Notices = {
     Error: 2
 }
 
+let isSendingFriendRequestUserId = false
+
 let didSendEmailVerification = false
 let didChangeEmail = false
 let didResetPassword = false
@@ -75,6 +78,8 @@ let isBlockingUser = false
 let isUnblockingUser = false
 let isFollowUser = false
 let isUnfollowUser = false
+
+let bioApplyButtonClicked = false
 let uploadedBanner
 let uploadedPfp
 
@@ -84,6 +89,15 @@ function renderPage(userdata, token){
     targetProfileUser = localUser
     editBio = userdata.Bio
     document.getElementById("hiusn").innerHTML = getRandomGreetingPhrase(userdata.Username)
+    document.getElementById("signoutButton").addEventListener("click", () => HypernexAPI.Users.logout(localUser.Id, localToken.content).then(r => {
+        if(r)
+            window.location.reload()
+        else
+            window.sendSweetAlert({
+                icon: 'error',
+                title: "Failed to Signout!"
+            })
+    }))
     setupTabButtonEvents()
     setupFriends()
     registerProfileButtonEvents()
@@ -91,40 +105,6 @@ function renderPage(userdata, token){
     setupEditProfile()
     setupSettingsTab(userdata, token)
 }
-
-renderPage({
-    Id: "7",
-    Username: "TheLegend27",
-    FriendRequests: [],
-    Friends: [],
-    OutgoingFriendRequests: [],
-    BlockedUsers: [],
-    Following: [],
-    isEmailVerified: true,
-    Bio: {
-        isPrivateAccount: false,
-        Status: HypernexAPI.Users.Status.Online,
-        StatusText: "Gaming!",
-        Description: "",
-        PfpURL: "",
-        BannerURL: "",
-        DisplayName: "The GOAT",
-        Pronouns: {
-            NominativeCase: pronountools.Pronouns.HeHimHis.NominativeCase,
-            AccusativeCase: pronountools.Pronouns.HeHimHis.AccusativeCase,
-            ReflexivePronoun: pronountools.Pronouns.HeHimHis.ReflexivePronoun,
-            IndependentGenitiveCase: pronountools.Pronouns.HeHimHis.IndependentGenitiveCase,
-            DependentGenitiveCase: pronountools.Pronouns.HeHimHis.DependentGenitiveCase,
-            Action: false,
-            DisplayThree: false,
-            Display:[
-                pronountools.Cases.NominativeCase,
-                pronountools.Cases.AccusativeCase,
-                pronountools.Cases.ReflexivePronoun
-            ]
-        }
-    },
-}, {content: "1234"})
 
 function getRandomGreetingPhrase(username) {
     const greetings = ["Howdy", "Hello", "Greetings", "Welcome", "G'day", "Hey", "Howdy-do", "Shalom"]
@@ -237,7 +217,8 @@ function setupTabButtonEvents(){
 function setupFriends(){
     HomeFriendsListLeftButton.addEventListener("click", () => FriendsList.scrollLeft -= 400)
     HomeFriendsListRightButton.addEventListener("click", () => FriendsList.scrollLeft += 400)
-    let f = sortOfflineFriends(localUser.Friends).TotalFriends
+    //let f = sortOfflineFriends(localUser.Friends).TotalFriends
+    let f = localUser.Friends
     for(let i = 0; i < f.length; i++){
         let friend = f[i]
         HypernexAPI.Users.getUserFromUserId(friend).then(user => {
@@ -270,6 +251,34 @@ function setupFriends(){
         HomeFriendRequestsListLeftButton.hidden = true
         HomeFriendRequestsListRightButton.hidden = true
     }
+    document.getElementById("send-friend-request").addEventListener("click", () => {
+        if(!isSendingFriendRequestUserId){
+            isSendingFriendRequestUserId = true
+            HypernexAPI.Users.sendFriendRequest(localUser.Id, localToken.content, document.getElementById("friend-userid").value).then(r => {
+                if(r){
+                    window.sendSweetAlert({
+                        icon: 'success',
+                        title: "Sent Friend Request!"
+                    })
+                    isSendingFriendRequest = false
+                }
+                else{
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Send Friend Request!"
+                    })
+                    isSendingFriendRequest = false
+                }
+            }).catch(err => {
+                console.log(err)
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Send Friend Request!"
+                })
+                isSendingFriendRequest = false
+            })
+        }
+    })
 }
 
 function renderProfile(user){
@@ -562,7 +571,10 @@ function getStatusFromRadios(invisibleRadio, onlineRadio, absentRadio, partyRadi
 }
 
 function setupEditProfile(){
-    TabContents.Profile.EditProfileCardContent.children[0].addEventListener("click", () => TabContents.Profile.EditProfileCardContent.parentNode.hidden = true)
+    TabContents.Profile.EditProfileCardContent.children[0].addEventListener("click", () => {
+        TabContents.Profile.EditProfileCardContent.parentNode.hidden = true
+        bioApplyButtonClicked = false
+    })
     let bannerPreview = TabContents.Profile.EditProfileCardContent.children[4]
     let bannerInput = TabContents.Profile.EditProfileCardContent.children[5].children[0]
     let pfpPreview = TabContents.Profile.EditProfileCardContent.children[9]
@@ -583,6 +595,7 @@ function setupEditProfile(){
         displaynameInput.value = editBio.DisplayName
         statustextInput.value = editBio.StatusText
         descriptionInput.value = editBio.Description
+        editBio.Pronouns = undefined
         TabContents.Profile.EditProfileCardContent.parentNode.hidden = false
     })
     if(editBio.PfpURL !== undefined && editBio.PfpURL !== "")
@@ -626,65 +639,93 @@ function setupEditProfile(){
         }
     }
     setpronounButton.addEventListener("click", () => TabContents.Profile.EditPronounsCardContent.parentNode.hidden = false)
-    removepronounButton.addEventListener("click", () => editBio.Pronouns = undefined)
+    removepronounButton.addEventListener("click", () => editBio.Pronouns = "remove")
     applyButton.addEventListener("click", () => {
-        let status = getStatusFromRadios(invisibleRadio, onlineRadio, absentRadio, partyRadio, dndRadio)
-        if(uploadedBanner !== undefined && uploadedPfp !== undefined){
-            //banner
-            HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedBanner).then(b => {
-                if(b){
-                    editBio.BannerURL = HypernexAPI.BASE_URL + "file/" + b.UserId + "/" + b.FileId
-                    HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedPfp).then(p => {
-                        if(p){
-                            editBio.PfpURL = HypernexAPI.BASE_URL + "file/" + p.UserId + "/" + p.FileId
-                            applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
-                        }
-                    }).catch(err => {
+        if(!bioApplyButtonClicked){
+            bioApplyButtonClicked = true
+            let status = getStatusFromRadios(invisibleRadio, onlineRadio, absentRadio, partyRadio, dndRadio)
+            if(uploadedBanner !== undefined && uploadedPfp !== undefined){
+                //banner
+                HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedBanner).then(b => {
+                    if(b){
+                        editBio.BannerURL = HypernexAPI.getAPIEndpoint() + "file/" + b.UserId + "/" + b.FileId
+                        HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedPfp).then(p => {
+                            if(p){
+                                editBio.PfpURL = HypernexAPI.getAPIEndpoint() + "file/" + p.UserId + "/" + p.FileId
+                                applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
+                            }else{
+                                window.sendSweetAlert({
+                                    icon: 'error',
+                                    title: "Failed to upload banner"
+                                })
+                                bioApplyButtonClicked = false
+                            }
+                        }).catch(err => {
+                            window.sendSweetAlert({
+                                icon: 'error',
+                                title: "Failed to upload banner"
+                            })
+                            bioApplyButtonClicked = false
+                            console.log(err)
+                        })
+                    }
+                }).catch(err => {
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to upload banner"
+                    })
+                    bioApplyButtonClicked = false
+                    console.log(err)
+                })
+            }
+            else if(uploadedBanner !== undefined){
+                HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedBanner).then(b => {
+                    console.log(b)
+                    if(b){
+                        editBio.BannerURL = HypernexAPI.getAPIEndpoint() + "file/" + b.UserId + "/" + b.FileId
+                        applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
+                    }
+                    else{
                         window.sendSweetAlert({
                             icon: 'error',
                             title: "Failed to upload banner"
                         })
-                        console.log(err)
+                        bioApplyButtonClicked = false
+                    }
+                }).catch(err => {
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to upload banner"
                     })
-                }
-            }).catch(err => {
-                window.sendSweetAlert({
-                    icon: 'error',
-                    title: "Failed to upload banner"
+                    bioApplyButtonClicked = false
+                    console.log(err)
                 })
-                console.log(err)
-            })
-        }
-        else if(uploadedBanner !== undefined){
-            HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedBanner).then(b => {
-                if(b){
-                    editBio.BannerURL = HypernexAPI.BASE_URL + "file/" + b.UserId + "/" + b.FileId
-                    applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
-                }
-            }).catch(err => {
-                window.sendSweetAlert({
-                    icon: 'error',
-                    title: "Failed to upload banner"
+            }
+            else if(uploadedPfp !== undefined){
+                HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedPfp).then(p => {
+                    if(p){
+                        editBio.PfpURL = HypernexAPI.getAPIEndpoint() + "file/" + p.UserId + "/" + p.FileId
+                        applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
+                    }
+                    else{
+                        window.sendSweetAlert({
+                            icon: 'error',
+                            title: "Failed to upload banner"
+                        })
+                        bioApplyButtonClicked = false
+                    }
+                }).catch(err => {
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to upload banner"
+                    })
+                    bioApplyButtonClicked = false
+                    console.log(err)
                 })
-                console.log(err)
-            })
+            }
+            else
+                applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
         }
-        else if(uploadedPfp !== undefined){
-            HypernexAPI.File.Upload(localUser.Id, localToken.content, uploadedPfp).then(p => {
-                if(p){
-                    editBio.PfpURL = HypernexAPI.BASE_URL + "file/" + p.UserId + "/" + p.FileId
-                    applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
-                }
-            }).catch(err => {
-                window.sendSweetAlert({
-                    icon: 'error',
-                    title: "Failed to upload banner"
-                })
-                console.log(err)
-            })
-        }
-        else
-            applyNoPromisesToEditBio(displaynameInput.value, status, statustextInput.value, descriptionInput.value, editBio.Pronouns)
     })
 }
 
@@ -699,8 +740,20 @@ function applyNoPromisesToEditBio(displayname, status, statustext, description, 
             window.sendSweetAlert({
                 icon: 'success',
                 title: "Updated Bio!"
+            }).then(() => window.location.reload())
+        }
+        else{
+            window.sendSweetAlert({
+                icon: 'error',
+                title: "Failed to Update Bio!"
             })
         }
+    }).catch(err => {
+        console.log(err)
+        window.sendSweetAlert({
+            icon: 'error',
+            title: "Failed to Update Bio!"
+        })
     })
 }
 
@@ -1035,11 +1088,7 @@ function createFriendRequestCard(user){
     if(bio.StatusText !== undefined && bio.StatusText !== "" && bio.Status !== HypernexAPI.Users.Status.Offline)
         statusText.innerHTML = getShortenedText(bio.StatusText)
     if(bio.Pronouns !== undefined){
-        let text = ""
-        for(let i = 0; i < bio.Pronouns.Display.length; i++)
-            text += bio.Pronouns.Display[i] + "/"
-        text = text.substring(text.length - 1, 0)
-        pronounText.innerHTML = text
+        pronounText.innerHTML = getTextForPronouns(bio.Pronouns)
         pronounText.hidden = false
     }
     friendCard.hidden = false
@@ -1097,13 +1146,19 @@ function createFriendRequestCard(user){
     t.parentNode.appendChild(friendCard)
 }
 
-/*
 webtools.checkLocalUserCache().then(r => {
     if(r !== undefined){
         let userdata = r.userdata
         let token = r.token
+        renderPage(userdata, token)
     }
     else
         window.location = "index.html"
 })
- */
+
+document.addEventListener("DOMContentLoaded", () => {
+    webtools.setThemeOnPage(undefined, s => document.querySelectorAll("." + s))
+    document.getElementById("set-dark-theme").addEventListener("click", () => webtools.setThemeOnPage(webtools.Themes.Dark, s => document.querySelectorAll("." + s)))
+    document.getElementById("set-light-theme").addEventListener("click", () => webtools.setThemeOnPage(webtools.Themes.Light, s => document.querySelectorAll("." + s)))
+    document.getElementById("set-pink-theme").addEventListener("click", () => webtools.setThemeOnPage(webtools.Themes.Pink, s => document.querySelectorAll("." + s)))
+})

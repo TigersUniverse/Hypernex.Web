@@ -3,7 +3,7 @@ import * as xhrtools from './xhrtools.js'
 export const BASE_URL = "http://localhost/"
 const API_VERSION = "v1"
 
-function getAPIEndpoint(){
+export function getAPIEndpoint(){
     return BASE_URL + "api/" + API_VERSION + "/"
 }
 
@@ -123,12 +123,13 @@ export const Users = {
             })
         })
     },
-    getUserFromUserId: function (userid, token) {
+    getUserFromUserId: function (userid, tokenContent) {
         return new Promise((exec, reject) => {
-            let url = getAPIEndpoint() + "getUser?userid=" + userid
-            if(token)
-                url += "&tokenContent=" + token.content
-            xhrtools.GET(url).then(r => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent
+            }
+            xhrtools.POST(getAPIEndpoint() + "getUser", req).then(r => {
                 let json = handleRes(r)
                 if(json){
                     if(json.success){
@@ -144,12 +145,13 @@ export const Users = {
             })
         })
     },
-    getUserFromUsername: function (username, token) {
+    getUserFromUsername: function (username, tokenContent) {
         return new Promise((exec, reject) => {
-            let url = getAPIEndpoint() + "getUser?username=" + username
-            if(token)
-                url += "&tokenContent=" + token.content
-            xhrtools.GET(url).then(r => {
+            let req = {
+                username: username,
+                tokenContent: tokenContent
+            }
+            xhrtools.POST(getAPIEndpoint() + "getUser", req).then(r => {
                 let json = handleRes(r)
                 if(json){
                     if(json.success){
@@ -167,7 +169,11 @@ export const Users = {
     },
     isUsernameValidToken: function (username, tokenContent) {
         return new Promise((exec, reject) => {
-            xhrtools.GET(getAPIEndpoint() + "isValidToken?username=" + username + "&tokenContent=" + tokenContent).then(r => {
+            let req = {
+                username: username,
+                tokenContent: tokenContent
+            }
+            xhrtools.POST(getAPIEndpoint() + "isValidToken", req).then(r => {
                 let json = handleRes(r)
                 if(json && json.success)
                     exec(json.result.isValidToken)
@@ -180,7 +186,11 @@ export const Users = {
     },
     isUserIdValidToken: function (userid, tokenContent) {
         return new Promise((exec, reject) => {
-            xhrtools.POST(getAPIEndpoint() + "isValidToken?userid=" + userid + "&tokenContent=" + tokenContent).then(r => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent
+            }
+            xhrtools.POST(getAPIEndpoint() + "isValidToken", req).then(r => {
                 let json = handleRes(r)
                 if(json && json.success)
                     exec(json.result.isValidToken)
@@ -539,17 +549,14 @@ export const File = {
     // Grab file from <input type="file">
     Upload: function (userid, tokenContent, file) {
         return new Promise((exec, reject) => {
-            const formData = new FormData()
+            let formData = new FormData()
             formData.append('userid', userid)
             formData.append('tokenContent', tokenContent)
-            formData.append("file", file)
-            xhrtools.POST(getAPIEndpoint() + "upload", {
-                method: "POST",
-                body: formData
-            }, true).then(r => {
+            formData.append('file', file, file.name)
+            xhrtools.POSTfile(getAPIEndpoint() + "upload", formData).then(r => {
                 let json = handleRes(r)
                 if(json && json.success)
-                    exec(json.UploadData)
+                    exec(json.result.UploadData)
                 else
                     exec(false)
             }).catch(err => reject(err))

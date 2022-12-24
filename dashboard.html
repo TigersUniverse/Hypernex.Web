@@ -39,8 +39,8 @@
 <!--End Bubble Templates-->
 
 <div class="centered-list-main" id="home-tab">
-    <h4><b style="font-size: 32px">Home</b></h4>
-    <a style="font-size: 22px" id="friends-label">Friends</a>
+    <h4><b style="font-size: 32px" class="dark-text">Home</b></h4>
+    <a style="font-size: 22px" id="friends-label" class="dark-text">Friends</a>
     <p></p>
     <button class="nav-button dark-theme-secondary dark-text" id="friends-nav-left" style="position: absolute; height: 210px; left: -25px;"><</button>
     <button class="nav-button dark-theme-secondary dark-text" id="friends-nav-right" style="position: absolute; height: 210px; right: -25px">></button>
@@ -58,7 +58,9 @@
             </div>
         </li>
     </ul>
-    <a style="font-size: 22px" id="friend-requests-label">Friend Requests</a>
+    <label class="pure-checkbox"><input type="checkbox" id="friends-show-offline"> Show Offline Friends</label>
+    <p></p>
+    <a style="font-size: 22px" id="friend-requests-label" class="dark-text">Friend Requests</a>
     <p></p>
     <button class="nav-button dark-theme-secondary dark-text" id="friend-requests-nav-left" style="position: absolute; height: 210px; left: -25px;"><</button>
     <button class="nav-button dark-theme-secondary dark-text" id="friend-requests-nav-right" style="position: absolute; height: 210px; right: -25px">></button>
@@ -78,7 +80,10 @@
             <button class="error-button pure-button" style="position: relative; left: 30px; top: -260px;">Decline</button>
         </li>
     </ul>
-    <label class="pure-checkbox"><input type="checkbox" id="friends-show-offline"> Show Offline Friends</label>
+    <p></p>
+    <a class="dark-text">Enter a UserId to send a Friend Request: </a>
+    <label><input type="text" id="friend-userid" class="dark-theme-secondary dark-text no-input-border"></label>
+    <button class="pure-button pure-button-primary" id="send-friend-request">Send Friend Request</button>
 </div>
 
 <div class="centered-list-main" id="profile-tab" hidden>
@@ -126,10 +131,10 @@
     <a class="dark-text">Reset your Password</a>
     <p></p>
     <a class="dark-text">New Password</a>
-    <label><input type="text" class="dark-theme-secondary dark-text no-input-border" id="new-password"></label>
+    <label><input type="password" class="dark-theme-secondary dark-text no-input-border" id="new-password"></label>
     <p></p>
     <a class="dark-text">Confirm New Password</a>
-    <label><input type="text" class="dark-theme-secondary dark-text no-input-border" id="confirm-new-password"></label>
+    <label><input type="password" class="dark-theme-secondary dark-text no-input-border" id="confirm-new-password"></label>
     <p></p>
     <button class="pure-button pure-button-primary" id="set-password">Set New Password</button>
     <p></p>
@@ -139,9 +144,15 @@
     <button class="pure-button pure-button-primary" id="enter-2fa-wizard">Enable 2FA</button>
     <p></p>
     <button class="pure-button error-button" id="remove-2fa">Remove 2FA</button>
+    <p></p>
+    <a class="dark-text" style="font-size: 22px">Theme</a>
+    <p></p>
+    <button class="pure-button pure-button-primary" id="set-dark-theme">Dark Theme</button>
+    <button class="pure-button pure-button-primary" id="set-light-theme">Light Theme</button>
+    <button class="pure-button pure-button-primary" id="set-pink-theme">Pink Theme</button>
 </div>
 
-<div class="top-navigation-bar dark-theme-secondary">
+<div class="top-navigation-bar dark-box-shadow dark-theme-secondary">
     <b class="align-left dark-text" style="font-size: 32px; padding-top: 0.5%">Hypernex</b>
     <a class="align-left dark-text selected-tab top-nav-bar-tab" style="top: 20px; left: 50px;" id="home-tab-button">HOME</a>
     <a class="align-left dark-text top-nav-bar-tab" style="top: 20px; left: 60px;" id="profile-tab-button">PROFILE</a>

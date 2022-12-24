@@ -1,4 +1,4 @@
-export function POST(url, data, dontStringify){
+export function POST(url, data){
     return new Promise(resolve => {
         let xhr = new XMLHttpRequest()
         xhr.open("POST", url)
@@ -8,10 +8,20 @@ export function POST(url, data, dontStringify){
             if (xhr.readyState === 4) {
                 resolve(xhr.responseText)
             }};
-        if(!dontStringify)
-            xhr.send(JSON.stringify(data))
-        else
-            xhr.send(data)
+        xhr.send(JSON.stringify(data))
+    })
+}
+
+export function POSTfile(url, formData){
+    return new Promise(resolve => {
+        let xhr = new XMLHttpRequest()
+        xhr.open("POST", url, true)
+        //xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                resolve(xhr.responseText)
+            }};
+        xhr.send(formData)
     })
 }
 

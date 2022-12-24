@@ -1,14 +1,17 @@
 import * as HypernexAPI from '../HypernexAPI.js'
 import * as storage from '../storage.js'
 import * as datetools from '../datetools.js'
+import * as webtools from '../webtools.js'
 
 // Elements
 let LoginCard = document.getElementById("login-card")
 let SignupCard = document.getElementById("signup-card")
+let ResetPasswordCard = document.getElementById("reset-password-card")
 let StatusCard = document.getElementById("status-card")
 
 let LoginButton = document.getElementById("login-button")
 let SignupButton = document.getElementById("signup-button")
+let ResetPasswordButton = document.getElementById("send-password-reset")
 let StatusConfirmButton = document.getElementById("status-confirm-button")
 
 let LoginUsername = document.getElementById("username-input")
@@ -22,8 +25,12 @@ let SignupInviteCode = document.getElementById("signup-invitecode-input")
 let Signup13Check = document.getElementById("signup-13-check")
 let SignupToSCheck = document.getElementById("signup-tos-check")
 
+let PasswordResetEmail = document.getElementById("password-reset-email-input")
+
 let LoginToExistingAccount = document.getElementById("login-existing-account")
 let CreateAnAccount = document.getElementById("create-account")
+let ForgetPassword = document.getElementById("forget-password")
+let LoginFromForgetPassword = document.getElementById("login-from-password-reset")
 
 let StatusTitle = document.getElementById("status-title")
 let StatusBeginDate = document.getElementById("status-begin-date")
@@ -41,6 +48,16 @@ LoginToExistingAccount.addEventListener("click", () => {
 CreateAnAccount.addEventListener("click", () => {
     LoginCard.hidden = true
     SignupCard.hidden = false
+})
+
+ForgetPassword.addEventListener("click", () => {
+    LoginCard.hidden = true
+    ResetPasswordCard.hidden = false
+})
+
+LoginFromForgetPassword.addEventListener("click", () => {
+    LoginCard.hidden = false
+    ResetPasswordCard.hidden = true
 })
 
 function handleLoginResult(result){
@@ -110,7 +127,7 @@ LoginButton.addEventListener("click", () => {
             if(result){
                 if(handleLoginResult(result)){
                     let token = result.token
-                    HypernexAPI.Users.getUserFromUsername(LoginUsername.value, token).then(user => {
+                    HypernexAPI.Users.getUserFromUsername(LoginUsername.value, token.content).then(user => {
                         if(user){
                             storage.setValue("currentToken", JSON.stringify(token))
                             storage.setValue("currentUser", JSON.stringify(user))
@@ -190,18 +207,50 @@ SignupButton.addEventListener("click", () => {
     }
 })
 
+let isResettingPassword = false
+ResetPasswordButton.addEventListener("click", () => {
+    if (!isResettingPassword) {
+        isResettingPassword = true
+        HypernexAPI.Users.requestPasswordReset(PasswordResetEmail.value).then(r => {
+            if (r)
+                window.sendSweetAlert({
+                    icon: 'success',
+                    title: "Sent Password Reset!",
+                    text: "Check your email for instructions!"
+                })
+            else {
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to send Password Reset!"
+                })
+                isResettingPassword = false
+            }
+        }).catch(err => {
+            console.log(err)
+            window.sendSweetAlert({
+                icon: 'error',
+                title: "Failed to send Password Reset!"
+            })
+            isResettingPassword = false
+        })
+    }
+})
+
 // Init
 
-HypernexAPI.setDebug(true)
+//HypernexAPI.setDebug(true)
 
 //LoginCard.hidden = true
 SignupCard.hidden = true
 StatusCard.hidden = true
 Login2FA.hidden = true
-HypernexAPI.Users.isInviteCodeRequired().then(r => {
-    if(r === null){
-        SignupInviteCode.hidden = true
-        return
-    }
-    SignupInviteCode.hidden = !r;
-})
+if(webtools.getCachedUser() !== undefined)
+    window.location = "dashboard"
+else
+    HypernexAPI.Users.isInviteCodeRequired().then(r => {
+        if(r === null){
+            SignupInviteCode.hidden = true
+            return
+        }
+        SignupInviteCode.hidden = !r;
+    })

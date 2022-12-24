@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hypernex - Verify Email</title>
+    <link rel="stylesheet" href="styles.css" type="text/css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+</head>
+<body class="dark-theme">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    window.sendSweetAlert = function(params){
+        return new Promise(exec => Swal.fire(params).then(r => exec(r)))
+    }
+
+</script>
+<script type="module" src="scripts/web/verifyEmail.js"></script>
+</body>
+</html>
