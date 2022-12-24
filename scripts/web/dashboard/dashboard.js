@@ -63,6 +63,7 @@ const Notices = {
 }
 
 let isSendingFriendRequestUserId = false
+let isViewingProfile = false
 
 let didSendEmailVerification = false
 let didChangeEmail = false
@@ -276,6 +277,32 @@ function setupFriends(){
                     title: "Failed to Send Friend Request!"
                 })
                 isSendingFriendRequest = false
+            })
+        }
+    })
+    document.getElementById("view-profile").addEventListener("click", () => {
+        if(!isViewingProfile){
+            isViewingProfile = true
+            HypernexAPI.Users.getUserFromUsername(document.getElementById("profile-to-view").value).then(user => {
+                if(user){
+                    targetProfileUser = user
+                    viewSelectedProfile()
+                    showTab(TabButtons.ProfileButton, Tabs.Profile)
+                }
+                else {
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: "Failed to Find User!"
+                    })
+                    isViewingProfile = false
+                }
+            }).catch(err => {
+                console.log(err)
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: "Failed to Find User!"
+                })
+                isViewingProfile = false
             })
         }
     })
