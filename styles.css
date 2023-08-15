@@ -162,6 +162,25 @@ label {
     float: right;
     right: 15px;
 }
+.inline-bubble {
+    border-radius: 7px;
+    position: relative;
+    height: 100px;
+}
+
+.inline-bubble>*{
+    text-align: left;
+    left: 105px;
+    word-break: break-word;
+    overflow-y: auto;
+    min-height: 100px;
+    max-height: 100px;
+    width: 92%;
+}
+
+.inline-bubble>*::-webkit-scrollbar{
+    display: none;
+}
 
 .bubble {
     border-radius: 7px;
@@ -209,6 +228,12 @@ label {
 /*Why does PureCSS make me use !important?*/
 .error-button{
     background-color: #f52a3a !important;
+    color: ghostwhite !important;
+}
+
+/*Why does PureCSS make me use !important?*/
+.black-button{
+    background-color: #000 !important;
     color: ghostwhite !important;
 }
 

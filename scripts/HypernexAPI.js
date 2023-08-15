@@ -23,6 +23,31 @@ export function setDebug(to) {
     isDebug = to
 }
 
+export const Info = {
+    AllowAnyGameServer: function () {
+        return new Promise((exec, reject) => {
+            xhrtools.GET(getAPIEndpoint() + "allowAnyGameServer").then(r => {
+                let json = handleRes(r)
+                if(json.success)
+                    exec(json.result.allowAnyGameServer)
+                else
+                    reject(new Error("Failed to get AllowAnyGameServer"))
+            }).catch(err => reject(err))
+        })
+    },
+    UnityVersion: function () {
+        return new Promise((exec, reject) => {
+            xhrtools.GET(getAPIEndpoint() + "unityVersion").then(r => {
+                let json = handleRes(r)
+                if(json.success)
+                    exec(json.result.UnityVersion)
+                else
+                    reject(new Error("Failed to get UnityVersion"))
+            }).catch(err => reject(err))
+        })
+    }
+}
+
 export const Users = {
     login: function (username, password, twofacode) {
         return new Promise((exec, reject) => {
@@ -571,6 +596,50 @@ export const File = {
                 else
                     reject(new Error("Failed to download file"))
             }).catch(err => reject(err))
+        })
+    },
+    AuthForBuilds: function () {
+        return new Promise((exec, reject) => {
+            xhrtools.GET(getAPIEndpoint() + "authForBuilds").then(r => {
+                if(r) {
+                    let json = handleRes(r)
+                    if(json && json.success)
+                        exec(json.result.authForBuilds)
+                    else
+                        reject(new Error("Failed to AuthFotBuilds"))
+                }
+                else
+                    reject(new Error("Failed to AuthFotBuilds"))
+            }).catch(err => reject(err))
+        })
+    },
+    GetVersions: function (name) {
+        return new Promise((exec, reject) => {
+            xhrtools.GET(getAPIEndpoint() + "getVersions/" + name).then(r => {
+                if(r) {
+                    let json = handleRes(r)
+                    if(json && json.success)
+                        exec(json.result)
+                    else
+                        reject(new Error("Failed to GetVersions for " + name))
+                }
+                else
+                    reject(new Error("Failed to GetVersions for " + name))
+            }).catch(err => reject(err))
+        })
+    },
+    GetBuild: function (name, version, artifact, userid, tokenContent) {
+        return new Promise((exec, reject) => {
+            let req = {
+                buildArtifact: artifact,
+                userid: userid,
+                tokenContent: tokenContent
+            }
+            xhrtools.POSTGetFile(getAPIEndpoint() + "getBuild/" + name + "/" + version, req).then(r => {
+                exec(r)
+            }).catch(err => {
+                reject(err)
+            })
         })
     }
 }

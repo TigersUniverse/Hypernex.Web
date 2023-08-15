@@ -100,6 +100,7 @@ function renderPage(userdata, token){
             })
     }))
     setupTabButtonEvents()
+    setupDownloads()
     setupFriends()
     registerProfileButtonEvents()
     setupPronounEditor()
@@ -140,7 +141,9 @@ function sortOfflineFriends(friends){
 }
 
 function toggleOfflineFriends(value){
-    for(let i = 0; i < FriendsList.children.length; i++){
+    let fCount = FriendsList.children.length
+    let hiddenCount = 0
+    for(let i = 0; i < fCount; i++){
         let childNode = FriendsList.children[i]
         if(childNode.id === ""){
             if(value)
@@ -150,10 +153,15 @@ function toggleOfflineFriends(value){
                 if(statusIcon.style.backgroundColor === "gray"){
                     console.log(childNode)
                     childNode.hidden = true
+                    hiddenCount++
                 }
             }
         }
     }
+    let h = fCount - 1 === hiddenCount
+    console.log(fCount - 1 + " " + hiddenCount)
+    HomeFriendsListLeftButton.hidden = h
+    HomeFriendsListRightButton.hidden = h
 }
 
 function createDashboardNotice(type, heading, description){
@@ -215,6 +223,48 @@ function setupTabButtonEvents(){
     TabButtons.SettingsButton.addEventListener("click", () => showTab(TabButtons.SettingsButton, Tabs.Settings))
 }
 
+function onDownloadedFileFromPOST(r){
+    window.downloadBinary(r.Buffer, r.FileName)
+}
+
+function initDownloadButton(button, name, artifact, display){
+    if(display === undefined)
+        display = name
+    HypernexAPI.File.GetVersions(name).then(r => {
+        if(r.Versions.length <= 0)
+            return;
+        let latest = r.Versions[0]
+        button.innerHTML = "Download " + display + " (" + latest + ")"
+    })
+    button.addEventListener("click", () => {
+        HypernexAPI.File.GetVersions(name).then(versions => {
+            if(versions.Versions.length <= 0)
+                return;
+            let latestVersion = versions.Versions[0]
+            HypernexAPI.File.AuthForBuilds().then(authRequired => {
+                if(authRequired)
+                    HypernexAPI.File.GetBuild(name, latestVersion, artifact, webtools.getCachedUser().Id, webtools.getCachedToken().content).then(onDownloadedFileFromPOST).catch()
+                else
+                    HypernexAPI.File.GetBuild(name, latestVersion, artifact).then(onDownloadedFileFromPOST).catch()
+            })
+        })
+    })
+}
+
+function setupDownloads(){
+    initDownloadButton(document.getElementById("download-hypernex.launcher"), "Hypernex.Launcher", 0)
+    initDownloadButton(document.getElementById("download-hypernex.unity"), "Hypernex.Unity", 0, "Hypernex.Unity for Windows")
+    initDownloadButton(document.getElementById("download-hypernex.unity-android"), "Hypernex.Unity", 1, "Hypernex.Unity for Android")
+    initDownloadButton(document.getElementById("download-hypernex.cck"), "Hypernex.CCK", 0)
+    HypernexAPI.Info.UnityVersion().then(unityVersion => {
+        let b = document.getElementById("download-unity")
+        b.addEventListener("click", () => window.location = "unityhub://" + unityVersion)
+        b.innerHTML = "Download Unity " + unityVersion + " in Unity Hub"
+    })
+    HypernexAPI.Info.AllowAnyGameServer().then(r => document.getElementById("gameservertokeninfo").hidden = !r).catch()
+    initDownloadButton(document.getElementById("download-hypernex.networking.server"), "Hypernex.Networking.Server", 0, "Hypernex.Networking.Server for Linux")
+}
+
 function setupFriends(){
     HomeFriendsListLeftButton.addEventListener("click", () => FriendsList.scrollLeft -= 400)
     HomeFriendsListRightButton.addEventListener("click", () => FriendsList.scrollLeft += 400)
@@ -224,18 +274,14 @@ function setupFriends(){
         let friend = f[i]
         HypernexAPI.Users.getUserFromUserId(friend).then(user => {
             if(user !== undefined){
-                createFriendCard(user)
+                let fc = createFriendCard(user)
+                toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked)
             }
         })
     }
     toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked)
     ShowOfflineFriendsCheckbox.addEventListener("click", () => toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked))
     document.getElementById("friends-label").innerHTML = "Friends (" + f.length + ")"
-    if(f.length <= 0){
-        HomeFriendsListLeftButton.hidden = true
-        HomeFriendsListRightButton.hidden = true
-        ShowOfflineFriendsCheckbox.parentNode.hidden = true
-    }
     HomeFriendRequestsListLeftButton.addEventListener("click", () => FriendRequestsList.scrollLeft -= 400)
     HomeFriendRequestsListRightButton.addEventListener("click", () => FriendRequestsList.scrollLeft += 400)
     let fr = localUser.FriendRequests
@@ -252,34 +298,6 @@ function setupFriends(){
         HomeFriendRequestsListLeftButton.hidden = true
         HomeFriendRequestsListRightButton.hidden = true
     }
-    document.getElementById("send-friend-request").addEventListener("click", () => {
-        if(!isSendingFriendRequestUserId){
-            isSendingFriendRequestUserId = true
-            HypernexAPI.Users.sendFriendRequest(localUser.Id, localToken.content, document.getElementById("friend-userid").value).then(r => {
-                if(r){
-                    window.sendSweetAlert({
-                        icon: 'success',
-                        title: "Sent Friend Request!"
-                    })
-                    isSendingFriendRequest = false
-                }
-                else{
-                    window.sendSweetAlert({
-                        icon: 'error',
-                        title: "Failed to Send Friend Request!"
-                    })
-                    isSendingFriendRequest = false
-                }
-            }).catch(err => {
-                console.log(err)
-                window.sendSweetAlert({
-                    icon: 'error',
-                    title: "Failed to Send Friend Request!"
-                })
-                isSendingFriendRequest = false
-            })
-        }
-    })
     document.getElementById("view-profile").addEventListener("click", () => {
         if(!isViewingProfile){
             isViewingProfile = true
@@ -1086,6 +1104,7 @@ function createFriendCard(user){
         showTab(TabButtons.ProfileButton, Tabs.Profile)
     })
     t.parentNode.appendChild(friendCard)
+    return friendCard
 }
 
 function createFriendRequestCard(user){

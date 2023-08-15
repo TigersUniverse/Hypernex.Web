@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Hypernex Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="media/hypernex_logo.ico">
     <link rel="stylesheet" href="styles.css" type="text/css"/>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"></script>
 </head>
 <body class="dark-theme">
 
@@ -81,13 +83,60 @@
         </li>
     </ul>
     <p></p>
-    <a class="dark-text">Enter a UserId to send a Friend Request: </a>
-    <label><input type="text" id="friend-userid" class="dark-theme-secondary dark-text no-input-border"></label>
-    <button class="pure-button pure-button-primary" id="send-friend-request">Send Friend Request</button>
-    <p></p>
     <a class="dark-text">Enter a Username to view their profile: </a>
     <label><input type="text" id="profile-to-view" class="dark-theme-secondary dark-text no-input-border"></label>
     <button class="pure-button pure-button-primary" id="view-profile">View Profile</button>
+    <p></p>
+    <h4><b style="font-size: 32px" class="dark-text">Downloads</b></h4>
+    <a style="font-size: 22px" class="dark-text">Hypernex.Unity</a>
+    <p></p>
+    <a class="dark-text">Hypernex.Unity is the Unity client for experiencing the Social (Non/)VR Sandbox. </a>
+    <p></p>
+    <a class="dark-text">The Launcher will automatically manage and install the latest version of Hypernex.Unity for you. </a>
+    <p></p>
+    <a class="dark-text">If you prefer to manage the install yourself, you can download the Hypernex.Unity client instead. </a>
+    <p></p>
+    <a class="dark-text">If you are playing on an <b>Oculus Quest/Pro</b>, you can download the APK and sideload yourself.</a>
+    <p></p>
+    <div class="inline-bubble warn-bubble">
+        <img src="media/warning.png" alt="warning" style="position:absolute; max-width: 100px; left: 0;">
+        <div style="position: relative; word-break: break-word;">
+            <b style="font-size: 32px">Warning</b>
+            <p></p>
+            <a class="dark-text">The Android build is <b>VERY UNSTABLE</b> and crashes frequently.</a>
+        </div>
+    </div>
+    <p></p>
+    <button class="pure-button pure-button-primary" id="download-hypernex.launcher">Download Hypernex.Launcher</button>
+    <button class="pure-button pure-button-primary" id="download-hypernex.unity">Download Hypernex.Unity for Windows</button>
+    <button class="success-button pure-button pure-button-primary" id="download-hypernex.unity-android">Download Hypernex.Unity for Android</button>
+    <p></p>
+    <a style="font-size: 22px" class="dark-text">Hypernex.CCK</a>
+    <p></p>
+    <a class="dark-text">The CCK (Content Creation Kit) for Hypernex. Use this to bring your assets into Hypernex.Unity!</a>
+    <p></p>
+    <button class="pure-button pure-button-primary" id="download-hypernex.cck">Download Hypernex.CCK</button>
+    <button class="black-button pure-button pure-button-primary" id="download-unity">Download Unity</button>
+    <p></p>
+    <a style="font-size: 22px" class="dark-text">Hypernex.Networking.Server</a>
+    <p></p>
+    <a class="dark-text">The Game Server software which hosts instances on your computer. </a>
+    <p></p>
+    <a class="dark-text">Port forwarding IS required and your IP Address WILL be broadcasted by hosting this. </a>
+    <p></p>
+    <a class="dark-text">This is recommended for advanced users who have CLI and Linux server management experience.</a>
+    <p></p>
+    <div class="inline-bubble info-bubble" id="gameservertokeninfo" hidden>
+        <img src="media/info.png" alt="info" style="position:absolute; max-width: 100px; left: 0;">
+        <div style="position: relative; word-break: break-word;">
+            <b style="font-size: 32px">Info</b>
+            <p></p>
+            <a class="dark-text" style="word-break: break-word">Your hosting provider has stated that a GameServerToken is required. This requires ALL Game Servers to provide a Token (provided by your provider) for authentication.</a>
+        </div>
+    </div>
+    <p></p>
+    <button class="black-button pure-button pure-button-primary" id="download-hypernex.networking.server">Download Hypernex.Networking.Server for Linux</button>
+    <hr class="dark-theme" style="border: none; height: 2px"></hr>
 </div>
 
 <div class="centered-list-main" id="profile-tab" hidden>
@@ -336,6 +385,10 @@
   }
 
   window.qrcode = (element, params) => new QRCode(element, params)
+
+  window.downloadBinary = function (data, name, ext) {
+      download(data, name, ext)
+  }
 </script>
 <script type="module" src="scripts/web/dashboard/dashboard.js"></script>
 </body>
