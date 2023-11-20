@@ -56,6 +56,39 @@
         <button class="pure-button pure-button-primary" style="margin: 0 auto;" id="signup-button">Signup</button>
         <p></p>
         <a id="login-existing-account" class="onClickHoverIcon">Or Login to an Existing Account</a>
+        <p></p>
+        <hr class="solid"/>
+        <div id="signup-rules"  style="text-align: right">
+            <a>❌ </a>
+            <a>Username contains three or more characters</a>
+            <p></p>
+            <a>❌ </a>
+            <a>Username has less than 20 characters</a>
+            <p></p>
+            <a>❌ </a>
+            <a>Username contains only letters and numbers</a>
+            <p></p>
+            <a>❌ </a>
+            <a>Username has one or less underscores</a>
+            <p></p>
+            <a>❌ </a>
+            <a>Password has eight or more characters</a>
+            <p></p>
+            <a>❌ </a>
+            <a>Password has one capital letter</a>
+            <p></p>
+            <a>❌ </a>
+            <a>Password has one lowercase letter</a>
+            <p></p>
+            <a>❌ </a>
+            <a>Password has one number</a>
+            <p></p>
+            <a>❌ </a>
+            <a>Password has one special character</a>
+            <p></p>
+            <a>❌ </a>
+            <a>Valid email provided</a>
+        </div>
     </div>
 </div>
 
@@ -89,9 +122,13 @@
 
 <!--Scripts-->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://unpkg.com/validator@latest/validator.min.js"></script>
 <script>
     window.sendSweetAlert = function(params){
         Swal.fire(params)
+    }
+    window.isEmail = function (email) {
+        return validator.isEmail(email)
     }
 </script>
 <script type="module" src="scripts/web/index.js"></script>

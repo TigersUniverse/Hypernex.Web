@@ -59,7 +59,7 @@ label {
     right: 0;
     margin: auto;
     width: 600px;
-    height: 700px;
+    height: 810px;
     border-radius: 5px;
 }
 
@@ -79,6 +79,16 @@ label {
 
 .status-box-c>*{
     text-align: left;
+}
+
+hr.solid {
+    display: block;
+    border: 0;
+    border-top: 3px solid #2d2d2d;
+    border-radius: 5px;
+    height: 1px;
+    margin: 1em 0;
+    padding: 0;
 }
 
 /*dashboard*/

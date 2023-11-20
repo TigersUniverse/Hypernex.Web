@@ -24,6 +24,9 @@ let SignupPassword = document.getElementById("signup-password-input")
 let SignupInviteCode = document.getElementById("signup-invitecode-input")
 let Signup13Check = document.getElementById("signup-13-check")
 let SignupToSCheck = document.getElementById("signup-tos-check")
+let SignupRules = document.getElementById("signup-rules")
+const CorrectEmoji = '✅'
+const WrongEmoji = '❌'
 
 let PasswordResetEmail = document.getElementById("password-reset-email-input")
 
@@ -254,3 +257,108 @@ else
         }
         SignupInviteCode.hidden = !r;
     })
+
+const ACCEPTABLE_CHARACTERS_IN_USERNAME = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
+    "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F",
+    "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
+    "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "_"]
+
+const isUpperCase = (string) => /^[A-Z]*$/.test(string)
+const isLowerCase = (string) => /^[a-z]*$/.test(string)
+const isNumber = (string) => /^\d+$/.test(string)
+
+function verifySignupInformation(){
+    let j = 0
+    for (let i = 0; i < SignupRules.children.length; i+=3){
+        let child = SignupRules.children[i]
+        let symbol
+        switch (j) {
+            case 0:
+                symbol = SignupUsername.value.length >= 3 ? CorrectEmoji : WrongEmoji
+                break
+            case 1:
+                symbol = SignupUsername.value.length <= 20 ? CorrectEmoji : WrongEmoji
+                break
+            case 2:
+                let ub2 = true
+                for(let ub2i = 0; ub2i < SignupUsername.value.length; ub2i++){
+                    let char = SignupUsername.value[ub2i]
+                    let f = false
+                    for(let ac = 0; ac < ACCEPTABLE_CHARACTERS_IN_USERNAME.length; ac++){
+                        if(ACCEPTABLE_CHARACTERS_IN_USERNAME[ac] === char)
+                            f = true
+                    }
+                    if(!f)
+                        ub2 = false
+                }
+                symbol = ub2 ? CorrectEmoji : WrongEmoji
+                break
+            case 3:
+                let cc = 0
+                for(let u3i = 0; u3i < SignupUsername.value.length; u3i++){
+                    let char = SignupUsername.value[u3i]
+                    if(char === "_")
+                        cc++
+                }
+                symbol = cc <= 1 ? CorrectEmoji : WrongEmoji
+                break
+            case 4:
+                symbol = SignupPassword.value.length >= 8 ? CorrectEmoji : WrongEmoji
+                break
+            case 5:
+                let p5 = false
+                for(let p5i = 0; p5i < SignupPassword.value.length; p5i++){
+                    let char = SignupPassword.value[p5i]
+                    if(isUpperCase(char)){
+                        p5 = true
+                        break
+                    }
+                }
+                symbol = p5 ? CorrectEmoji : WrongEmoji
+                break
+            case 6:
+                let p6 = false
+                for(let p6i = 0; p6i < SignupPassword.value.length; p6i++){
+                    let char = SignupPassword.value[p6i]
+                    if(isLowerCase(char)){
+                        p6 = true
+                        break
+                    }
+                }
+                symbol = p6 ? CorrectEmoji : WrongEmoji
+                break
+            case 7:
+                let p7 = false
+                for(let p7i = 0; p7i < SignupPassword.value.length; p7i++){
+                    let char = SignupPassword.value[p7i]
+                    if(isNumber(char)){
+                        p7 = true
+                        break
+                    }
+                }
+                symbol = p7 ? CorrectEmoji : WrongEmoji
+                break
+            case 8:
+                let p8 = false
+                for(let p8i = 0; p8i < SignupPassword.value.length; p8i++){
+                    let char = SignupPassword.value[p8i]
+                    if(!isLowerCase(char) && !isUpperCase(char) && !isNumber(char)){
+                        p8 = true
+                        break
+                    }
+                }
+                symbol = p8 ? CorrectEmoji : WrongEmoji
+                break
+            case 9:
+                symbol = window.isEmail(SignupEmail.value) ? CorrectEmoji : WrongEmoji
+                break
+        }
+        if(symbol !== undefined)
+            child.innerHTML = symbol + ' '
+        j++
+    }
+}
+
+SignupUsername.addEventListener("input", verifySignupInformation)
+SignupEmail.addEventListener("input", verifySignupInformation)
+SignupPassword.addEventListener("input", verifySignupInformation)

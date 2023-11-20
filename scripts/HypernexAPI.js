@@ -1,6 +1,7 @@
 import * as xhrtools from './xhrtools.js'
 
-export const BASE_URL = "http://localhost/"
+const _url = new URL(window.location)
+export const BASE_URL = _url.protocol + "//" + _url.host + '/'
 const API_VERSION = "v1"
 
 export function getAPIEndpoint(){
