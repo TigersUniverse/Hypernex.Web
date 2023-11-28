@@ -571,6 +571,110 @@ export const Users = {
     }
 }
 
+export const Worlds = {
+    Get: function (worldid) {
+        return new Promise((exec, reject) => {
+            xhrtools.GET(getAPIEndpoint() + "meta/world/" + worldid).then(r => {
+                let json = handleRes(r)
+                if(json && json.success)
+                    exec(json.result.Meta)
+                else
+                    exec(undefined)
+            }).catch(err => reject(err))
+        })
+    },
+    Delete: function (userid, tokenContent, worldid) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                worldid: worldid
+            }
+            xhrtools.POST(getAPIEndpoint() + "remove/world", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => reject(err))
+        })
+    }
+}
+
+export const Avatars = {
+    Get: function (avatarid) {
+        return new Promise((exec, reject) => {
+            xhrtools.GET(getAPIEndpoint() + "meta/avatar/" + avatarid).then(r => {
+                let json = handleRes(r)
+                if(json && json.success)
+                    exec(json.result.Meta)
+                else
+                    exec(undefined)
+            }).catch(err => reject(err))
+        })
+    },
+    Delete: function (userid, tokenContent, avatarid) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                avatarid: avatarid
+            }
+            xhrtools.POST(getAPIEndpoint() + "remove/avatar", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => reject(err))
+        })
+    }
+}
+
+export const Search = {
+    User: function (username, itemsPerPage = 50, pageNumber = 0) {
+        return new Promise((exec, reject) => {
+            xhrtools.GET(getAPIEndpoint() + "search/user/" + username + '/' + itemsPerPage + '/' + pageNumber).then(r => {
+                let json = handleRes(r)
+                if(json && json.success)
+                    exec(json.result.Candidates)
+                else
+                    exec(undefined)
+            }).catch(err => reject(err))
+        })
+    },
+    Avatar: function (searchtype, query, itemsPerPage = 50, pageNumber = 0) {
+        return new Promise((exec, reject) => {
+            if(searchtype === "tag")
+                searchtype = "tag"
+            else
+                searchtype = "search"
+            xhrtools.GET(getAPIEndpoint() + searchtype + "/avatar/" + query + '/' + itemsPerPage + '/' + pageNumber).then(r => {
+                let json = handleRes(r)
+                if(json && json.success)
+                    exec(json.result.Candidates)
+                else
+                    exec(undefined)
+            }).catch(err => reject(err))
+        })
+    },
+    World: function (searchtype, query, itemsPerPage = 50, pageNumber = 0) {
+        return new Promise((exec, reject) => {
+            if(searchtype === "tag")
+                searchtype = "tag"
+            else
+                searchtype = "search"
+            xhrtools.GET(getAPIEndpoint() + searchtype + "/world/" + query + '/' + itemsPerPage + '/' + pageNumber).then(r => {
+                let json = handleRes(r)
+                if(json && json.success)
+                    exec(json.result.Candidates)
+                else
+                    exec(undefined)
+            }).catch(err => reject(err))
+        })
+    }
+}
+
 export const File = {
     // Grab file from <input type="file">
     Upload: function (userid, tokenContent, file) {
@@ -641,6 +745,46 @@ export const File = {
             }).catch(err => {
                 reject(err)
             })
+        })
+    }
+}
+
+export const Popularity = {
+    PopularityType: {
+        "Hourly": 0,
+        "Daily": 1,
+        "Weekly": 2,
+        "Monthly": 3,
+        "Yearly": 4
+    },
+    GetWorlds: function (popularityType = 0, itemsPerPage = 50, page = 0) {
+        return new Promise((exec, reject) => {
+            xhrtools.GET(getAPIEndpoint() + "popularity/world/" + popularityType + '/' + itemsPerPage + '/' + page).then(r => {
+                if(r) {
+                    let json = handleRes(r)
+                    if(json && json.success)
+                        exec(json.result)
+                    else
+                        reject(new Error("Failed to GetWorlds Popularity"))
+                }
+                else
+                    reject(new Error("Failed to GetWorlds Popularity"))
+            }).catch(err => reject(err))
+        })
+    },
+    GetAvatars: function (popularityType = 0, itemsPerPage = 50, page = 0) {
+        return new Promise((exec, reject) => {
+            xhrtools.GET(getAPIEndpoint() + "popularity/avatar/" + popularityType + '/' + itemsPerPage + '/' + page).then(r => {
+                if(r) {
+                    let json = handleRes(r)
+                    if(json && json.success)
+                        exec(json.result)
+                    else
+                        reject(new Error("Failed to GetWorlds Popularity"))
+                }
+                else
+                    reject(new Error("Failed to GetWorlds Popularity"))
+            }).catch(err => reject(err))
         })
     }
 }

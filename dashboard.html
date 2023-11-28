@@ -43,6 +43,7 @@
 <div class="centered-list-main" id="home-tab">
     <h4><b style="font-size: 32px" class="dark-text">Home</b></h4>
     <a style="font-size: 22px" id="friends-label" class="dark-text">Friends</a>
+    <label class="pure-checkbox"><input type="checkbox" id="friends-show-offline"> Show Offline Friends</label>
     <p></p>
     <button class="nav-button dark-theme-secondary dark-text" id="friends-nav-left" style="position: absolute; height: 210px; left: -25px;"><</button>
     <button class="nav-button dark-theme-secondary dark-text" id="friends-nav-right" style="position: absolute; height: 210px; right: -25px">></button>
@@ -60,7 +61,6 @@
             </div>
         </li>
     </ul>
-    <label class="pure-checkbox"><input type="checkbox" id="friends-show-offline"> Show Offline Friends</label>
     <p></p>
     <a style="font-size: 22px" id="friend-requests-label" class="dark-text">Friend Requests</a>
     <p></p>
@@ -82,10 +82,6 @@
             <button class="error-button pure-button" style="position: relative; left: 30px; top: -260px;">Decline</button>
         </li>
     </ul>
-    <p></p>
-    <a class="dark-text">Enter a Username to view their profile: </a>
-    <label><input type="text" id="profile-to-view" class="dark-theme-secondary dark-text no-input-border"></label>
-    <button class="pure-button pure-button-primary" id="view-profile">View Profile</button>
     <p></p>
     <h4><b style="font-size: 32px" class="dark-text">Downloads</b></h4>
     <a style="font-size: 22px" class="dark-text">Hypernex.Unity</a>
@@ -165,6 +161,136 @@
         <button class="error-button pure-button" id="profile-unfollow">Unfollow</button>
         <p></p>
         <button class="pure-button pure-button-primary" id="profile-edit">Edit Profile</button>
+        <p></p>
+        <button class="pure-button pure-button-primary" id="permalink-profile">Copy Permalink</button>
+    </div>
+</div>
+
+<div class="centered-list-main" id="world-tab" hidden>
+    <div id="worlds-home">
+        <a style="font-size: 22px" class="dark-text">My Worlds</a>
+        <p></p>
+        <button class="nav-button dark-theme-secondary dark-text" id="my-worlds-nav-left" style="position: absolute; height: 210px; left: -25px;"><</button>
+        <button class="nav-button dark-theme-secondary dark-text" id="my-worlds-nav-right" style="position: absolute; height: 210px; right: -25px">></button>
+        <ul class="friend-list-card" id="my-worlds-list" style="min-height: 225px; max-height: 225px;">
+            <li id="example-world-card" hidden>
+                <img src="media/defaultbanner.jpg" alt="g" style="min-width: 400px; max-width: 400px; max-height: 225px; min-height: 225px; object-fit: cover; border-radius: 10px;"/>
+                <div style="position: relative; min-width: 100%; background-color: rgba(0, 0, 0, 0.9); height: 50px; bottom: 54px; border-radius: 0 0 9px 9px;">
+                    <div style="position: absolute; bottom: 30px; left: 10px;">
+                        <a style="color: white;">World Name</a>
+                    </div>
+                    <a style="color: white; position: absolute; bottom: 10px; left: 10px; font-size: 14px;">Created By: </a>
+                </div>
+            </li>
+        </ul>
+        <a style="font-size: 22px" class="dark-text">Popular Worlds</a>
+        <label for="world-popularity-type" class="dark-text">Popularity Type</label>
+        <select id="world-popularity-type" style="border: none" class="dark-text dark-theme-secondary">
+            <option value="Hourly">Hourly</option>
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Yearly">Yearly</option>
+        </select>
+        <p></p>
+        <button class="nav-button dark-theme-secondary dark-text" id="popular-worlds-nav-left" style="position: absolute; height: 210px; left: -25px;"><</button>
+        <button class="nav-button dark-theme-secondary dark-text" id="popular-worlds-nav-right" style="position: absolute; height: 210px; right: -25px">></button>
+        <ul class="friend-list-card" id="popular-worlds-list" style="min-height: 225px; max-height: 225px;"></ul>
+    </div>
+    <div id="worlds-view" hidden>
+        <h4><b id="world-name" style="font-size: 32px" class="dark-text">World Name</b></h4>
+        <div style="position: absolute">
+            <img src="media/defaultbanner.jpg" id="world-banner" alt="g" style="min-width: 600px; max-width: 600px; max-height: 300px; min-height: 300px; object-fit: cover; border-radius: 10px;"/>
+            <button style="position:inherit; left: 10px; bottom: 10px; background: transparent; border-style: none; color: ghostwhite; font-size: 50px" id="left-world-icon"><</button>
+            <button style="position:inherit; right: 10px; bottom: 10px; background: transparent; border-style: none; color: ghostwhite; font-size: 50px" id="right-world-icon">></button>
+            <div style="position: inherit; top: 0; left: 610px; min-width: 800px; max-width: 800px; min-height: 300px; max-height: 300px; border-radius: 10px" class="dark-theme-secondary">
+                <a id="world-description" class="dark-text" style="position: inherit; left: 5px; top: 5px;">This is a description!</a>
+            </div>
+        </div>
+        <p></p>
+        <div style="position: absolute; top: 380px;">
+            <a id="world-creator" class="dark-text" style="position:inherit; min-width: 600px; text-align: center;">Created By: </a>
+            <button class="pure-button pure-button-primary" id="create-instance" style="position: inherit; top: -7px; left: 615px;">Create Instance in Hypernex</button>
+            <button class="pure-button pure-button-primary" id="permalink-world" style="position: inherit; top: -7px; left: 870px;">Copy Permalink</button>
+            <button class="error-button pure-button align-right" style="top: -7px; left: 1275px;" id="delete-world">Delete World</button>
+        </div>
+    </div>
+</div>
+
+<div class="centered-list-main" id="avatar-tab" hidden>
+    <div id="avatars-home">
+        <a style="font-size: 22px" class="dark-text">My Avatars</a>
+        <p></p>
+        <button class="nav-button dark-theme-secondary dark-text" id="my-avatars-nav-left" style="position: absolute; height: 210px; left: -25px;"><</button>
+        <button class="nav-button dark-theme-secondary dark-text" id="my-avatars-nav-right" style="position: absolute; height: 210px; right: -25px">></button>
+        <ul class="friend-list-card" id="my-avatars-list">
+            <li id="example-avatar-card" hidden>
+                <img src="media/defaultbanner.jpg" alt="g" style="min-width: 400px; max-width: 400px; max-height: 225px; min-height: 225px; object-fit: cover; border-radius: 10px;"/>
+                <div style="position: relative; min-width: 100%; background-color: rgba(0, 0, 0, 0.9); height: 50px; bottom: 54px; border-radius: 0 0 9px 9px;">
+                    <div style="position: absolute; bottom: 30px; left: 10px;">
+                        <a style="color: white;">Avatar Name</a>
+                    </div>
+                    <a style="color: white; position: absolute; bottom: 10px; left: 10px; font-size: 14px;">Created By: </a>
+                </div>
+            </li>
+        </ul>
+        <a style="font-size: 22px" class="dark-text">Popular Worlds</a>
+        <label for="avatar-popularity-type" class="dark-text">Popularity Type</label>
+        <select id="avatar-popularity-type" style="border: none" class="dark-text dark-theme-secondary">
+            <option value="Hourly">Hourly</option>
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Yearly">Yearly</option>
+        </select>
+        <p></p>
+        <button class="nav-button dark-theme-secondary dark-text" id="popular-avatars-nav-left" style="position: absolute; height: 210px; left: -25px;"><</button>
+        <button class="nav-button dark-theme-secondary dark-text" id="popular-avatars-nav-right" style="position: absolute; height: 210px; right: -25px">></button>
+        <ul class="friend-list-card" id="popular-avatars-list"></ul>
+    </div>
+    <div id="avatars-view" hidden>
+        <h4><b id="avatar-name" style="font-size: 32px" class="dark-text">Avatar Name</b></h4>
+        <div style="position: absolute">
+            <img src="media/defaultbanner.jpg" id="avatar-banner" alt="g" style="min-width: 600px; max-width: 600px; max-height: 300px; min-height: 300px; object-fit: cover; border-radius: 10px;"/>
+            <div style="position: inherit; top: 0; left: 610px; min-width: 800px; max-width: 800px; min-height: 300px; max-height: 300px; border-radius: 10px" class="dark-theme-secondary">
+                <a id="avatar-description" class="dark-text" style="position: inherit; left: 5px; top: 5px;">This is a description!</a>
+            </div>
+        </div>
+        <p></p>
+        <div style="position: absolute; top: 380px;">
+            <a id="avatar-creator" class="dark-text" style="position:inherit; min-width: 600px; text-align: center;">Created By: </a>
+            <button class="pure-button pure-button-primary" id="equip-avatar" style="position: inherit; top: -7px; left: 615px;">Equip Avatar in Hypernex</button>
+            <button class="pure-button pure-button-primary" id="permalink-avatar" style="position: inherit; top: -7px; left: 850px;">Copy Permalink</button>
+            <button class="error-button pure-button align-right" style="top: -7px; left: 1275px;" id="delete-avatar">Delete Avatar</button>
+        </div>
+    </div>
+</div>
+
+<div class="centered-list-main" id="search-tab" hidden>
+    <a class="dark-text">Search for</a>
+    <label><input style="min-width: 50%" class="dark-theme-secondary dark-text no-input-border" id="search-term"></label>
+    <label for="search-by" class="dark-text">by</label>
+    <select id="search-by" style="border: none" class="dark-text dark-theme-secondary">
+        <option value="name">Name</option>
+        <option value="tag">Tag</option>
+    </select>
+    <label for="search-type" class="dark-text">in</label>
+    <select id="search-type" style="border: none" class="dark-text dark-theme-secondary">
+        <option value="user">Users</option>
+        <option value="avatar">Avatars</option>
+        <option value="world">Worlds</option>
+    </select>
+    <button class="pure-button success-button" id="search-button">Search</button>
+    <button class="pure-button pure-button-primary" id="search-previous-button">Previous Page</button>
+    <button class="pure-button pure-button-primary" id="search-next-button">Next Page</button>
+    <p></p>
+    <div id="search-list" style="min-width: 85%; max-width: 85%">
+        <div id="example-search-card" style="min-width: 100%; max-height: 100px; padding-bottom: 10px; position: relative; left: -5px" hidden>
+            <img src="media/defaultbanner.jpg" alt="g" style="min-width: 100%; max-width: 100%; max-height: 100px; min-height: 100px; object-fit: cover; border-radius: 10px;"/>
+            <a style="color: white; position:relative; bottom: 100px; left: 5px; font-size: 50px">Asset Name</a>
+            <p style="position:relative; bottom: 105px"></p>
+            <a style="color: white; position: relative; bottom: 105px; left: 10px; font-size: 14px;">Created By: </a>
+        </div>
     </div>
 </div>
 
@@ -209,7 +335,10 @@
     <b class="align-left dark-text" style="font-size: 32px; padding-top: 0.5%">Hypernex</b>
     <a class="align-left dark-text selected-tab top-nav-bar-tab" style="top: 20px; left: 50px;" id="home-tab-button">HOME</a>
     <a class="align-left dark-text top-nav-bar-tab" style="top: 20px; left: 60px;" id="profile-tab-button">PROFILE</a>
-    <a class="align-left dark-text top-nav-bar-tab" style="top: 20px; left: 70px;" id="settings-tab-button">SETTINGS</a>
+    <a class="align-left dark-text top-nav-bar-tab" style="top: 20px; left: 70px;" id="world-tab-button">WORLDS</a>
+    <a class="align-left dark-text top-nav-bar-tab" style="top: 20px; left: 80px;" id="avatar-tab-button">AVATARS</a>
+    <a class="align-left dark-text top-nav-bar-tab" style="top: 20px; left: 90px;" id="search-tab-button">SEARCH</a>
+    <a class="align-left dark-text top-nav-bar-tab" style="top: 20px; left: 100px;" id="settings-tab-button">SETTINGS</a>
     <button class="error-button pure-button align-right" style="top: 15px" id="signoutButton">Sign Out</button>
     <a id="hiusn" class="align-right dark-text" style="top: 23px; right: 25px"></a>
 </div>
@@ -230,7 +359,7 @@
         <p></p>
         <div id="qrcode" style="width: 128px; height: 128px; position: relative; margin: 0 auto"></div>
         <p></p>
-        <a style="font-size: 11px; color: #525252" href="https://fortnite.lol" target="_blank" rel="noopener" id="qrcode-url">https://fortnite.lol</a>
+        <a style="font-size: 11px; color: #525252" href="https://play.hypernex.dev" target="_blank" rel="noopener" id="qrcode-url">https://play.hypernex.dev</a>
         <p></p>
         <a class="dark-text" style="font-size: 22px">Step 3</a>
         <p></p>
