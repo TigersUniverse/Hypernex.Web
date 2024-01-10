@@ -1,7 +1,32 @@
+/*
+ * This is the Web Configuration for interacting with the API.
+ * By default, the same domain will be used for interacting with the API.
+ * This is because a normal setup has both the Web server and API server running from the same program.
+ * However, some people may want to host them separately for reasons such as load balancing or extra features.
+ * To do this, simply edit the constant below.
+ *
+ * OverrideAPI (bool) - Tells the API file whether to override the API Domain or not.
+ * IsSecure (bool) - Tells the API server to use HTTPS or HTTP. This should only be changed for debugging.
+ * APIDomain (string) - Tells which API domain to use. Do NOT include protocols or trailing slashes.
+ */
+
+const API_CONFIGURATION = {
+    "OverrideAPI": false,
+    "IsSecure": true,
+    "APIDomain": ""
+}
+
+/*
+ * DO NOT EDIT ANYTHING PAST HERE UNLESS YOU KNOW WHAT YOU ARE DOING!
+ *
+ * This is all code stuff that has nothing to do with the config other than applying it.
+ * You should only edit the code below here if you are a developer looking to contribute.
+ */
+
 import * as xhrtools from './xhrtools.js'
 
 const _url = new URL(window.location)
-export const BASE_URL = _url.protocol + "//" + _url.host + '/'
+export let BASE_URL = _url.protocol + "//" + _url.host + '/'
 const API_VERSION = "v1"
 
 export function getAPIEndpoint(){
@@ -787,4 +812,9 @@ export const Popularity = {
             }).catch(err => reject(err))
         })
     }
+}
+
+if(API_CONFIGURATION.OverrideAPI){
+    let h = API_CONFIGURATION.IsSecure ? "https://" : "http://"
+    BASE_URL = h + API_CONFIGURATION.APIDomain + '/'
 }
