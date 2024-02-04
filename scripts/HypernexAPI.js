@@ -63,10 +63,13 @@ export const Info = {
     },
     UnityVersion: function () {
         return new Promise((exec, reject) => {
-            xhrtools.GET(getAPIEndpoint() + "unityVersion").then(r => {
+            xhrtools.GET(getAPIEndpoint() + "gameEngine").then(r => {
                 let json = handleRes(r)
                 if(json.success)
-                    exec(json.result.UnityVersion)
+                    exec({
+                        GameEngine: json.result.GameEngine,
+                        GameEngineVersion: json.result.GameEngineVersion
+                    })
                 else
                     reject(new Error("Failed to get UnityVersion"))
             }).catch(err => reject(err))

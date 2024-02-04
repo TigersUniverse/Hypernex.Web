@@ -130,7 +130,7 @@ function createAvatarCard(avatar, creator, overrideNode){
     let bannerImg = avatarCard.children[0]
     let avatarNameText = avatarCard.children[1].children[0].children[0]
     let avatarCreatorText = avatarCard.children[1].children[1]
-    if(avatar.ImageURL !== undefined)
+    if(avatar.ImageURL !== undefined && avatar.ImageURL !== "")
         bannerImg.src = avatar.ImageURL
     avatarNameText.innerHTML = avatar.Name
     let username

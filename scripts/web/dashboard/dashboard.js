@@ -245,13 +245,40 @@ function initDownloadButton(button, name, artifact, display){
 
 function setupDownloads(){
     initDownloadButton(document.getElementById("download-hypernex.launcher"), "Hypernex.Launcher", 0)
-    initDownloadButton(document.getElementById("download-hypernex.unity"), "Hypernex.Unity", 0, "Hypernex.Unity for Windows")
-    initDownloadButton(document.getElementById("download-hypernex.unity-android"), "Hypernex.Unity", 1, "Hypernex.Unity for Android")
-    initDownloadButton(document.getElementById("download-hypernex.cck"), "Hypernex.CCK", 0)
-    HypernexAPI.Info.UnityVersion().then(unityVersion => {
-        let b = document.getElementById("download-unity")
-        b.addEventListener("click", () => window.location = "unityhub://" + unityVersion)
-        b.innerHTML = "Download Unity " + unityVersion + " in Unity Hub"
+    HypernexAPI.Info.UnityVersion().then(gameEngineObject => {
+        let b = document.getElementById("download-engine")
+        let info = document.getElementById("clientinfo-Hypernex." + gameEngineObject.GameEngine)
+        if(info !== undefined) info.hidden = false
+        switch (gameEngineObject.GameEngine.toLowerCase()){
+            case "unity":
+                b.addEventListener("click", () => window.location = "unityhub://" + gameEngineObject.GameEngineVersion)
+                b.innerHTML = "Download Unity " + gameEngineObject.GameEngineVersion + " in Unity Hub"
+                initDownloadButton(document.getElementById("download-hypernex.client"), "Hypernex.Unity", 0, "Hypernex.Unity for Windows")
+                initDownloadButton(document.getElementById("download-hypernex.client-android"), "Hypernex.Unity", 1, "Hypernex.Unity for Android")
+                initDownloadButton(document.getElementById("download-hypernex.cck"), "Hypernex.CCK", 0)
+                break
+            case "godot":
+                // window.userAgentData.platform doesn't even support firefox like be fr :sob:
+                // also like every single browser still supports this
+                let platform = window.navigator.platform
+                b.addEventListener("click", () => {
+                    let p
+                    if(platform.indexOf("Win") !== -1)
+                        p = "win64"
+                    else if(platform.indexOf("Mac") !== -1)
+                        p = "macos.universal"
+                    else
+                        p = "linux_x86_64"
+                    let url = "https://github.com/godotengine/godot-builds/releases/download/" + gameEngineObject.GameEngineVersion + "/Godot_v" + gameEngineObject.GameEngineVersion + "_mono_" + p +".zip"
+                    window.open(url)
+                })
+                b.innerHTML = "Download Godot " + gameEngineObject.GameEngineVersion
+                initDownloadButton(document.getElementById("download-hypernex.client"), "Hypernex.Godot", 0, "Hypernex.Godot for Windows")
+                initDownloadButton(document.getElementById("download-hypernex.client-android"), "Hypernex.Godot", 1, "Hypernex.Godot for Android")
+                initDownloadButton(document.getElementById("download-hypernex.cck"), "Hypernex.CCK", 1)
+                document.getElementById("download-hypernex.client-android").hidden = true
+                break
+        }
     })
     HypernexAPI.Info.AllowAnyGameServer().then(r => document.getElementById("gameservertokeninfo").hidden = !r).catch()
     initDownloadButton(document.getElementById("download-hypernex.networking.server"), "Hypernex.Networking.Server", 0, "Hypernex.Networking.Server for Linux")

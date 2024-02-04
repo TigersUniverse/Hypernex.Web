@@ -161,7 +161,7 @@ function createWorldCard(world, creator, overrideNode){
     let bannerImg = worldCard.children[0]
     let worldNameText = worldCard.children[1].children[0].children[0]
     let worldCreatorText = worldCard.children[1].children[1]
-    if(world.ThumbnailURL !== undefined)
+    if(world.ThumbnailURL !== undefined && world.ThumbnailURL !== "")
         bannerImg.src = world.ThumbnailURL
     worldNameText.innerHTML = world.Name
     let username
