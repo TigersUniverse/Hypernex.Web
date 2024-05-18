@@ -139,6 +139,39 @@ export function setThemeOnPage(theme, getElementsByClassName){
     }
 }
 
+export function arrayToString(arr) {
+    let str = ""
+    for (let i = 0; i < arr.length; i++){
+        if(i === arr.length - 1){
+            str += arr[i]
+        }
+        else{
+            str += arr[i] + ", "
+        }
+    }
+    return str
+}
+
+export function parseRank(rankNumber) {
+    switch (rankNumber) {
+        case 0:
+            return "Guest"
+        case 1:
+            return "Incompleter"
+        case 2:
+            return "Registered"
+        case 3:
+            return "Verified"
+        case 4:
+            return "Moderator"
+        case 5:
+            return "Admin"
+        case 6:
+            return "Owner"
+    }
+    return undefined
+}
+
 export const Themes = {
     Dark: 0,
     Light: 1,

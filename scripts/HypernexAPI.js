@@ -817,6 +817,20 @@ export const Popularity = {
     }
 }
 
+export const Moderation = {
+    Moderation: function (req) {
+        return new Promise((exec, reject) => {
+            xhrtools.POST(getAPIEndpoint() + "moderation", req).then(r => {
+                let json = handleRes(r)
+                if(json)
+                    exec(json.success)
+                else
+                    exec(false)
+            }).catch(err => reject(err))
+        })
+    }
+}
+
 if(API_CONFIGURATION.OverrideAPI){
     let h = API_CONFIGURATION.IsSecure ? "https://" : "http://"
     BASE_URL = h + API_CONFIGURATION.APIDomain + '/'

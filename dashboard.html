@@ -40,6 +40,10 @@
 </div>
 <!--End Bubble Templates-->
 
+<div style="width:100%; height:85vh; position: fixed" id="mod-div" hidden>
+    <button class="mod-button-align black-button pure-button pure-button-primary" id="mod-button">MOD</button>
+</div>
+
 <div class="centered-list-main" id="home-tab">
     <h4><b style="font-size: 32px" class="dark-text">Home</b></h4>
     <a style="font-size: 22px" id="friends-label" class="dark-text">Friends</a>
@@ -344,6 +348,44 @@
     <button class="pure-button pure-button-primary" id="set-pink-theme">Pink Theme</button>
 </div>
 
+<div class="centered-list-main" id="moderator-panel" hidden>
+    <h4><b class="dark-text" style="font-size: 32px">Mod Panel</b></h4>
+    <a class="dark-text">Enter a User Id: </a>
+    <label><input type="text" class="dark-theme-secondary dark-text no-input-border" id="mod-userid"></label>
+    <button class="pure-button pure-button-primary" id="mod-set-userid">Set User Id</button>
+    <p></p>
+    <a class="dark-text" id="mod-selected-user">Selected User: </a>
+    <p></p>
+    <a class="dark-text" style="font-size: 22px">Badges</a>
+    <p></p>
+    <a class="dark-text" id="mod-badges-text">Badges: </a>
+    <p></p>
+    <label><input type="text" class="dark-theme-secondary dark-text no-input-border" id="mod-badge-input"></label>
+    <button class="success-button pure-button pure-button-primary" id="mod-add-badge">Add Badge</button>
+    <button class="error-button pure-button" style="top: 15px" id="mod-remove-badge">Remove Badge</button>
+    <p></p>
+    <a class="dark-text" style="font-size: 22px">Badges</a>
+    <p></p>
+    <a class="dark-text" id="mod-current-rank">User Rank: </a>
+    <p></p>
+    <select id="mod-ranks" style="border: none" class="dark-text dark-theme-secondary">
+        <option value="guest">Guest</option>
+        <option value="incompleter">Incompleter</option>
+        <option value="registered">Registered</option>
+        <option value="verified">Verified</option>
+        <option value="moderator">Moderator</option>
+        <option value="admin">Admin</option>
+        <option value="owner">Owner</option>
+    </select>
+    <button class="pure-button pure-button-primary" id="mod-set-rank">Set Rank</button>
+    <p></p>
+    <a class="dark-text" style="font-size: 22px">Moderation</a>
+    <p></p>
+    <button class="warn-bubble pure-button pure-button-primary" id="mod-warn">Warn User</button>
+    <button class="error-bubble pure-button pure-button-primary" id="mod-ban">Ban User</button>
+    <button class="pure-button pure-button-primary" id="mod-unban">Unban User</button>
+</div>
+
 <div class="top-navigation-bar dark-box-shadow dark-theme-secondary">
     <b class="align-left dark-text" style="font-size: 32px; padding-top: 0.5%">Hypernex</b>
     <a class="align-left dark-text selected-tab top-nav-bar-tab" style="top: 20px; left: 50px;" id="home-tab-button">HOME</a>
@@ -518,6 +560,27 @@
     </div>
 </div>
 
+<div class="fixed-popup" id="warn-or-ban-model" hidden>
+    <div class=" fixed-popup-card dark-theme">
+        <button style="position: relative; top: 5px; right: 5px; float: right; border-style: none; background-color: rgba(0, 0, 0, 0); cursor: pointer; color: #525252;">X</button>
+        <a class="dark-text">Reason</a>
+        <p></p>
+        <label><input type="text" class="dark-theme-secondary dark-text no-input-border" style="width: 70%; height: 25px; text-align: center; font-size: 20px"></label>
+        <p></p>
+        <a class="dark-text">Description</a>
+        <p></p>
+        <label><input type="text" class="dark-theme-secondary dark-text no-input-border" style="width: 70%; height: 25px; text-align: center; font-size: 20px"></label>
+        <p></p>
+        <a class="dark-text">Banned Until</a>
+        <p></p>
+        <div id="mod-calendar-toggle" style="margin: auto; width: 50%; padding: 10px;"></div>
+        <p></p>
+        <button class="pure-button-primary pure-button">Submit</button>
+        <p></p>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datedreamer/0.2.1/datedreamer.min.js"></script>
 <script type="text/javascript" src="scripts/libs/qrcodejs/jquery.min.js"></script>
 <script type="text/javascript" src="scripts/libs/qrcodejs/qrcode.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
@@ -530,6 +593,14 @@
 
   window.downloadBinary = function (data, name, ext) {
       download(data, name, ext)
+  }
+
+  window.createCalendar = function (element, onChange) {
+      new datedreamer.calendarToggle({
+          element: element,
+          theme: "lite-purple",
+          onChange: onChange
+      })
   }
 </script>
 <script type="module" src="scripts/web/dashboard/dashboard.js"></script>

@@ -214,6 +214,16 @@ hr.solid {
     display: none;
 }
 
+.mod-button-align{
+    width: 50px;
+    height: 50px;
+    border-radius: 7px;
+    position: absolute;
+    bottom: 0;
+    right: 15px;
+    padding: 0 !important;
+}
+
 .info-bubble{
     background-color: rgb(33, 150, 243);
     /*outline: #257eff solid 2px;*/

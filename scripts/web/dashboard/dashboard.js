@@ -1,5 +1,6 @@
 import * as HypernexAPI from '../../HypernexAPI.js'
 import * as webtools from '../../webtools.js'
+import * as datetools from '../../datetools.js'
 import {
     default as user,
     viewProfile,
@@ -29,7 +30,8 @@ const Tabs = {
     Worlds: document.getElementById("world-tab"),
     Avatars: document.getElementById("avatar-tab"),
     Search: document.getElementById("search-tab"),
-    Settings: document.getElementById("settings-tab")
+    Settings: document.getElementById("settings-tab"),
+    Moderation: document.getElementById("moderator-panel")
 }
 
 const TabButtons = {
@@ -38,7 +40,8 @@ const TabButtons = {
     WorldsButton: document.getElementById("world-tab-button"),
     AvatarsButton: document.getElementById("avatar-tab-button"),
     SearchButton: document.getElementById("search-tab-button"),
-    SettingsButton: document.getElementById("settings-tab-button")
+    SettingsButton: document.getElementById("settings-tab-button"),
+    ModButton: document.getElementById("mod-button")
 }
 
 const TabContents = {
@@ -113,6 +116,10 @@ function renderPage(userdata, token){
     })
     setupTabButtonEvents()
     checkParameters()
+    if(userdata.Rank >= HypernexAPI.Users.Rank.Moderator) {
+        setupModPage()
+        document.getElementById("mod-div").hidden = false
+    }
 }
 
 function getRandomGreetingPhrase(username) {
@@ -202,7 +209,7 @@ function showTab(tabButton, tabToShow){
         let value = Tabs[key]
         value.hidden = true
     }
-    tabButton.classList.add("selected-tab")
+    if(tabButton !== undefined) tabButton.classList.add("selected-tab")
     tabToShow.hidden = false
 }
 
@@ -213,6 +220,7 @@ function setupTabButtonEvents(){
     TabButtons.AvatarsButton.addEventListener("click", () => showTab(TabButtons.AvatarsButton, Tabs.Avatars))
     TabButtons.SearchButton.addEventListener("click", () => showTab(TabButtons.SearchButton, Tabs.Search))
     TabButtons.SettingsButton.addEventListener("click", () => showTab(TabButtons.SettingsButton, Tabs.Settings))
+    TabButtons.ModButton.addEventListener("click", () => showTab(undefined, Tabs.Moderation))
 }
 
 function onDownloadedFileFromPOST(r){
@@ -693,6 +701,252 @@ function checkParameters(){
     let _url = new URL(window.location)
     let u = _url.protocol + "//" + _url.host + _url.pathname
     history.pushState({}, null, u);
+}
+
+let modSelectedUser
+let modDate
+let isBan
+
+function setupModPage(){
+    let modUserIdInput = document.getElementById("mod-userid")
+    let modSelectedUserText = document.getElementById("mod-selected-user")
+    let badgesText = document.getElementById("mod-badges-text")
+    let modCurrentRankText = document.getElementById("mod-current-rank")
+    document.getElementById("mod-set-userid").addEventListener('click', () => {
+        HypernexAPI.Users.getUserFromUserId(modUserIdInput.value).then(user => {
+            if(user !== undefined){
+                modSelectedUser = user
+                modSelectedUserText.innerHTML = "Selected User: " + modSelectedUser.Username + " (" + modSelectedUser.Id + ")"
+                badgesText.innerHTML = "Badges: " + webtools.arrayToString(modSelectedUser.Badges)
+                modCurrentRankText.innerHTML = "User Rank: " + webtools.parseRank(modSelectedUser.Rank)
+            }
+            else{
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: 'Failed to get user!'
+                })
+            }
+        }).catch(() => {
+            window.sendSweetAlert({
+                icon: 'error',
+                title: 'Failed to get user!'
+            })
+        })
+    })
+    let badgeElement = document.getElementById("mod-badge-input")
+    document.getElementById("mod-add-badge").addEventListener('click', () => {
+        let badge = badgeElement.value.toLowerCase()
+        let req = {
+            userid: localUser.Id,
+            tokenContent: localToken.content,
+            action: "addbadge",
+            targetUserId: modSelectedUser.Id,
+            badgeName: badge
+        }
+        HypernexAPI.Moderation.Moderation(req).then(r => {
+            if(r){
+                window.sendSweetAlert({
+                    icon: 'success',
+                    title: "Added badge!"
+                })
+            }
+            else{
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: 'Failed to add badge!'
+                })
+            }
+        }).catch(() => {
+            window.sendSweetAlert({
+                icon: 'error',
+                title: 'Failed to add badge!'
+            })
+        })
+    })
+    document.getElementById("mod-remove-badge").addEventListener('click', () => {
+        let badge = badgeElement.value.toLowerCase()
+        let req = {
+            userid: localUser.Id,
+            tokenContent: localToken.content,
+            action: "removebadge",
+            targetUserId: modSelectedUser.Id,
+            badgeName: badge
+        }
+        HypernexAPI.Moderation.Moderation(req).then(r => {
+            if(r){
+                window.sendSweetAlert({
+                    icon: 'success',
+                    title: "Removed badge!"
+                })
+            }
+            else{
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: 'Failed to remove badge!'
+                })
+            }
+        }).catch(() => {
+            window.sendSweetAlert({
+                icon: 'error',
+                title: 'Failed to remove badge!'
+            })
+        })
+    })
+    let rankDropdown = document.getElementById("mod-ranks")
+    document.getElementById("mod-set-rank").addEventListener('click', () => {
+        let newRank
+        switch (rankDropdown.value) {
+            case "guest":
+                newRank = HypernexAPI.Users.Rank.Guest
+                break
+            case "incompleter":
+                newRank = HypernexAPI.Users.Rank.Incompleter
+                break
+            case "registered":
+                newRank = HypernexAPI.Users.Rank.Registered
+                break
+            case "verified":
+                newRank = HypernexAPI.Users.Rank.Verified
+                break
+            case "moderator":
+                newRank = HypernexAPI.Users.Rank.Moderator
+                break
+            case "admin":
+                newRank = HypernexAPI.Users.Rank.Admin
+                break
+            case "owner":
+                newRank = HypernexAPI.Users.Rank.Owner
+                break
+            default:
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: 'Invalid input!'
+                })
+                throw new Error("Invalid rank!")
+        }
+        let req = {
+            userid: localUser.Id,
+            tokenContent: localToken.content,
+            action: "setrank",
+            targetUserId: modSelectedUser.Id,
+            newRank: newRank
+        }
+        HypernexAPI.Moderation.Moderation(req).then(r => {
+            if(r){
+                window.sendSweetAlert({
+                    icon: 'success',
+                    title: "Set rank!"
+                })
+            }
+            else{
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: 'Failed to set rank!'
+                })
+            }
+        }).catch(() => {
+            window.sendSweetAlert({
+                icon: 'error',
+                title: 'Failed to set rank!'
+            })
+        })
+    })
+    let panelElement = document.getElementById("warn-or-ban-model")
+    let calendar = document.getElementById("mod-calendar-toggle")
+    let bannedUntil = panelElement.children[0].children[9]
+    document.getElementById("mod-warn").addEventListener('click', () => {
+        isBan = false
+        calendar.hidden = true
+        bannedUntil.hidden = true
+        panelElement.hidden = false
+    })
+    document.getElementById("mod-ban").addEventListener('click', () => {
+        isBan = true
+        calendar.hidden = false
+        bannedUntil.hidden = false
+        panelElement.hidden = false
+    })
+    document.getElementById("mod-unban").addEventListener('click', () => {
+        let req = {
+            userid: localUser.Id,
+            tokenContent: localToken.content,
+            action: "unbanuser",
+            targetUserId: modSelectedUser.Id
+        }
+        HypernexAPI.Moderation.Moderation(req).then(r => {
+            if(r){
+                window.sendSweetAlert({
+                    icon: 'success',
+                    title: "Moderated user!"
+                }).then(() => window.location.reload())
+            }
+            else{
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: 'Failed to moderate'
+                })
+            }
+        }).catch(() => {
+            window.sendSweetAlert({
+                icon: 'error',
+                title: 'Failed to moderate'
+            })
+        })
+    })
+    setupModWarnBanPanel(panelElement)
+}
+
+function setupModWarnBanPanel(panelElement){
+    let containerCard = panelElement.children[0]
+    let xButton = containerCard.children[0]
+    let reasonInput = containerCard.children[3].children[0]
+    let descriptionInput = containerCard.children[7].children[0]
+    window.createCalendar("#mod-calendar-toggle", e => modDate = Date.parse(e.detail))
+    let submitButton = containerCard.children[13]
+    xButton.addEventListener('click', () => panelElement.hidden = true)
+    submitButton.addEventListener('click', () => {
+        try{
+            let req = {
+                userid: localUser.Id,
+                tokenContent: localToken.content,
+                action: isBan ? "banuser" : "warnuser",
+                targetUserId: modSelectedUser.Id
+            }
+            if(isBan){
+                req.banReason = reasonInput.value
+                req.banDescription = descriptionInput.value
+                req.timeEnd = parseInt(datetools.toUnix(modDate))
+            }
+            else{
+                req.warnReason = reasonInput.value
+                req.warnDescription = descriptionInput.value
+            }
+            HypernexAPI.Moderation.Moderation(req).then(r => {
+                if(r){
+                    window.sendSweetAlert({
+                        icon: 'success',
+                        title: "Moderated user!"
+                    }).then(() => window.location.reload())
+                }
+                else{
+                    window.sendSweetAlert({
+                        icon: 'error',
+                        title: 'Failed to moderate'
+                    })
+                }
+            }).catch(() => {
+                window.sendSweetAlert({
+                    icon: 'error',
+                    title: 'Failed to moderate'
+                })
+            })
+        }catch (e){
+            window.sendSweetAlert({
+                icon: 'error',
+                title: 'Invalid input'
+            })
+        }
+    })
 }
 
 webtools.checkLocalUserCache().then(r => {
