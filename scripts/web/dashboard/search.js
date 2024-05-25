@@ -110,13 +110,13 @@ function createWorldSearchCard(world, creator){
         bannerImg.src = "media/defaultbanner.jpg"
     else
         bannerImg.src = world.ThumbnailURL
-    worldNameText.innerHTML = world.Name
+    worldNameText.textContent = world.Name
     let username
     if(creator.Bio.DisplayName !== undefined || creator.Bio.DisplayName !== "")
         username = creator.Bio.DisplayName + " (@" + creator.Username + ")"
     else
         username = creator.Username
-    worldCreatorText.innerHTML = "Created By: " + username
+    worldCreatorText.textContent = "Created By: " + username
     searchCard.hidden = false
     searchCard.id = ""
     searchCard.addEventListener("click", () => viewWorld(world, creator))
@@ -134,13 +134,13 @@ function createAvatarSearchCard(avatar, creator){
         bannerImg.src = "media/defaultbanner.jpg"
     else
         bannerImg.src = avatar.ImageURL
-    avatarNameText.innerHTML = avatar.Name
+    avatarNameText.textContent = avatar.Name
     let username
     if(creator.Bio.DisplayName !== undefined || creator.Bio.DisplayName !== "")
         username = creator.Bio.DisplayName + " (@" + creator.Username + ")"
     else
         username = creator.Username
-    avatarCreatorText.innerHTML = "Created By: " + username
+    avatarCreatorText.textContent = "Created By: " + username
     avatarCard.hidden = false
     avatarCard.id = ""
     avatarCard.addEventListener("click", () => viewAvatar(avatar, creator))
@@ -158,13 +158,13 @@ function createUserSearchCard(user){
     if(bio.BannerURL === undefined || bio.BannerURL === "")
         bio.BannerURL = "media/defaultbanner.jpg"
     bannerImg.src = bio.BannerURL
-    statusText.innerHTML = getTextFromStatus(bio.Status)
+    statusText.textContent = getTextFromStatus(bio.Status)
     if(bio.DisplayName !== undefined && bio.DisplayName !== "")
-        usernameText.innerHTML = bio.DisplayName
+        usernameText.textContent = bio.DisplayName
     else
-        usernameText.innerHTML = "@" + user.Username
+        usernameText.textContent = "@" + user.Username
     if(bio.StatusText !== undefined && bio.StatusText !== "" && bio.Status !== HypernexAPI.Users.Status.Offline)
-        statusText.innerHTML = getShortenedText(bio.StatusText)
+        statusText.textContent = getShortenedText(bio.StatusText)
     friendCard.hidden = false
     friendCard.id = ""
     friendCard.addEventListener("click", () => viewUser(user))

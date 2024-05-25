@@ -108,8 +108,8 @@ const viewAvatar = function (avatar, creator) {
 
 function viewSelectedAvatar(){
     AvatarsHome.hidden = true
-    AvatarName.innerHTML = targetAvatar.Name
-    AvatarDescription.innerHTML = targetAvatar.Description
+    AvatarName.textContent = targetAvatar.Name
+    AvatarDescription.textContent = targetAvatar.Description
     if(targetAvatar.ImageURL === undefined || targetAvatar.ImageURL === "")
         AvatarBanner.src = "media/defaultbanner.jpg"
     else
@@ -119,7 +119,7 @@ function viewSelectedAvatar(){
         username = targetCreator.Bio.DisplayName + " (@" + targetCreator.Username + ")"
     else
         username = targetCreator.Username
-    AvatarCreator.innerHTML = "Created By: " + username
+    AvatarCreator.textContent = "Created By: " + username
     DeleteAvatar.hidden = targetCreator.Id !== localId
     AvatarsView.hidden = false
 }
@@ -132,13 +132,13 @@ function createAvatarCard(avatar, creator, overrideNode){
     let avatarCreatorText = avatarCard.children[1].children[1]
     if(avatar.ImageURL !== undefined && avatar.ImageURL !== "")
         bannerImg.src = avatar.ImageURL
-    avatarNameText.innerHTML = avatar.Name
+    avatarNameText.textContent = avatar.Name
     let username
     if(creator.Bio.DisplayName !== undefined)
         username = creator.Bio.DisplayName + " (@" + creator.Username + ")"
     else
         username = creator.Username
-    avatarCreatorText.innerHTML = "Created By: " + username
+    avatarCreatorText.textContent = "Created By: " + username
     avatarCard.hidden = false
     avatarCard.id = ""
     avatarCard.addEventListener("click", () => {

@@ -128,8 +128,8 @@ const viewWorld = function (world, creator) {
 function viewSelectedWorld(){
     lastIconIndex = 0
     WorldsHome.hidden = true
-    WorldName.innerHTML = targetWorld.Name
-    WorldDescription.innerHTML = targetWorld.Description
+    WorldName.textContent = targetWorld.Name
+    WorldDescription.textContent = targetWorld.Description
     if(targetWorld.IconURLs === undefined || targetWorld.IconURLs.length <= 0){
         if(targetWorld.ThumbnailURL === undefined || targetWorld.ThumbnailURL === "")
             WorldBanner.src = "media/defaultbanner.jpg"
@@ -143,7 +143,7 @@ function viewSelectedWorld(){
         username = targetCreator.Bio.DisplayName + " (@" + targetCreator.Username + ")"
     else
         username = targetCreator.Username
-    WorldCreator.innerHTML = "Created By: " + username
+    WorldCreator.textContent = "Created By: " + username
     DeleteWorld.hidden = targetCreator.Id !== localId
     WorldsView.hidden = false
 }
@@ -163,13 +163,13 @@ function createWorldCard(world, creator, overrideNode){
     let worldCreatorText = worldCard.children[1].children[1]
     if(world.ThumbnailURL !== undefined && world.ThumbnailURL !== "")
         bannerImg.src = world.ThumbnailURL
-    worldNameText.innerHTML = world.Name
+    worldNameText.textContent = world.Name
     let username
     if(creator.Bio.DisplayName !== undefined)
         username = creator.Bio.DisplayName + " (@" + creator.Username + ")"
     else
         username = creator.Username
-    worldCreatorText.innerHTML = "Created By: " + username
+    worldCreatorText.textContent = "Created By: " + username
     worldCard.hidden = false
     worldCard.id = ""
     worldCard.addEventListener("click", () => {

@@ -180,25 +180,25 @@ function renderProfile(user){
         pfp.src = "media/defaultpfp.jpg"
     statusIcon.style.backgroundColor = getColorFromStatus(bio.Status)
     if(bio.DisplayName !== undefined && bio.DisplayName !== ""){
-        username.innerHTML = bio.DisplayName
-        username2.innerHTML = "@" + user.Username
+        username.textContent = bio.DisplayName
+        username2.textContent = "@" + user.Username
         username2.hidden = false
     }
     else{
-        username.innerHTML = "@" + user.Username
+        username.textContent = "@" + user.Username
         username2.hidden = true
     }
     if(bio.Pronouns !== undefined){
-        pronounCard.innerHTML = getTextForPronouns(bio.Pronouns)
+        pronounCard.textContent = getTextForPronouns(bio.Pronouns)
         pronounCard.hidden = false
     }
     else
         pronounCard.hidden = true
     if(bio.StatusText !== undefined && bio.StatusText !== "")
-        status.innerHTML = bio.StatusText
+        status.textContent = bio.StatusText
     else
-        status.innerHTML = getTextFromStatus(bio.Status)
-    description.innerHTML = bio.Description
+        status.textContent = getTextFromStatus(bio.Status)
+    description.textContent = bio.Description
 }
 
 function registerProfileButtonEvents(TabContents){

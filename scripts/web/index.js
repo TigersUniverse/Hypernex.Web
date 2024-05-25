@@ -76,11 +76,11 @@ function handleLoginResult(result){
             return false
         case HypernexAPI.Users.LoginResult.Warned:
             LoginCard.hidden = false
-            StatusTitle.innerHTML = "You have been Warned"
-            StatusBeginDate.innerHTML = "Date Warned: " + datetools.dateToString(datetools.fromUnix(result.WarnStatus.TimeWarned))
-            StatusEndDate.innerHTML = ""
-            StatusReason.innerHTML = "Warn Reason: " + result.WarnStatus.WarnReason
-            StatusDescription.innerHTML = "Warn Description: " + result.WarnStatus.WarnDescription
+            StatusTitle.textContent = "You have been Warned"
+            StatusBeginDate.textContent = "Date Warned: " + datetools.dateToString(datetools.fromUnix(result.WarnStatus.TimeWarned))
+            StatusEndDate.textContent = ""
+            StatusReason.textContent = "Warn Reason: " + result.WarnStatus.WarnReason
+            StatusDescription.textContent = "Warn Description: " + result.WarnStatus.WarnDescription
             StatusConfirmButton.addEventListener("click", () => {
                 let token = result.token
                 HypernexAPI.Users.getUserFromUsername(LoginUsername.value, token).then(user => {
@@ -109,11 +109,11 @@ function handleLoginResult(result){
             return false
         case HypernexAPI.Users.LoginResult.Banned:
             LoginCard.hidden = false
-            StatusTitle.innerHTML = "You have been Banned"
-            StatusBeginDate.innerHTML = "Date Banned: " + datetools.dateToString(datetools.fromUnix(result.BanStatus.BanBegin))
-            StatusEndDate.innerHTML = "Length of Ban: " + datetools.dateToString(datetools.fromUnix(result.BanStatus.BanEnd))
-            StatusReason.innerHTML = "Ban Reason: " + result.BanStatus.BanReason
-            StatusDescription.innerHTML = "Ban Description: " + result.BanStatus.BanDescription
+            StatusTitle.textContent = "You have been Banned"
+            StatusBeginDate.textContent = "Date Banned: " + datetools.dateToString(datetools.fromUnix(result.BanStatus.BanBegin))
+            StatusEndDate.textContent = "Length of Ban: " + datetools.dateToString(datetools.fromUnix(result.BanStatus.BanEnd))
+            StatusReason.textContent = "Ban Reason: " + result.BanStatus.BanReason
+            StatusDescription.textContent = "Ban Description: " + result.BanStatus.BanDescription
             StatusConfirmButton.hidden = true
             StatusCard.hidden = false
             return false
@@ -354,7 +354,7 @@ function verifySignupInformation(){
                 break
         }
         if(symbol !== undefined)
-            child.innerHTML = symbol + ' '
+            child.textContent = symbol + ' '
         j++
     }
 }

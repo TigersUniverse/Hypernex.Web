@@ -88,7 +88,7 @@ let qrcode
 function renderPage(userdata, token){
     localUser = userdata
     localToken = token
-    document.getElementById("hiusn").innerHTML = getRandomGreetingPhrase(userdata.Username)
+    document.getElementById("hiusn").textContent = getRandomGreetingPhrase(userdata.Username)
     document.getElementById("signoutButton").addEventListener("click", () => HypernexAPI.Users.logout(localUser.Id, localToken.content).then(r => {
         if(r)
             window.location.reload()
@@ -192,8 +192,8 @@ function createDashboardNotice(type, heading, description){
             return
     }
     let bubble = document.getElementById(id).cloneNode(true)
-    bubble.children[1].children[0].innerHTML = heading
-    bubble.children[1].children[2].innerHTML = description
+    bubble.children[1].children[0].textContent = heading
+    bubble.children[1].children[2].textContent = description
     bubble.hidden = false
     document.body.insertBefore(bubble, document.body.children[0])
     bubble.after(document.createElement("p"))
@@ -234,7 +234,7 @@ function initDownloadButton(button, name, artifact, display){
         if(r.Versions.length <= 0)
             return;
         let latest = r.Versions[0]
-        button.innerHTML = "Download " + display + " (" + latest + ")"
+        button.textContent = "Download " + display + " (" + latest + ")"
     })
     button.addEventListener("click", () => {
         HypernexAPI.File.GetVersions(name).then(versions => {
@@ -260,7 +260,7 @@ function setupDownloads(){
         switch (gameEngineObject.GameEngine.toLowerCase()){
             case "unity":
                 b.addEventListener("click", () => window.location = "unityhub://" + gameEngineObject.GameEngineVersion)
-                b.innerHTML = "Download Unity " + gameEngineObject.GameEngineVersion + " in Unity Hub"
+                b.textContent = "Download Unity " + gameEngineObject.GameEngineVersion + " in Unity Hub"
                 initDownloadButton(document.getElementById("download-hypernex.client"), "Hypernex.Unity", 0, "Hypernex.Unity for Windows")
                 initDownloadButton(document.getElementById("download-hypernex.client-android"), "Hypernex.Unity", 1, "Hypernex.Unity for Android")
                 initDownloadButton(document.getElementById("download-hypernex.cck"), "Hypernex.CCK", 0)
@@ -280,7 +280,7 @@ function setupDownloads(){
                     let url = "https://github.com/godotengine/godot-builds/releases/download/" + gameEngineObject.GameEngineVersion + "/Godot_v" + gameEngineObject.GameEngineVersion + "_mono_" + p +".zip"
                     window.open(url)
                 })
-                b.innerHTML = "Download Godot " + gameEngineObject.GameEngineVersion
+                b.textContent = "Download Godot " + gameEngineObject.GameEngineVersion
                 initDownloadButton(document.getElementById("download-hypernex.client"), "Hypernex.Godot", 0, "Hypernex.Godot for Windows")
                 initDownloadButton(document.getElementById("download-hypernex.client-android"), "Hypernex.Godot", 1, "Hypernex.Godot for Android")
                 initDownloadButton(document.getElementById("download-hypernex.cck"), "Hypernex.CCK", 1)
@@ -308,7 +308,7 @@ function setupFriends(){
     }
     toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked)
     ShowOfflineFriendsCheckbox.addEventListener("click", () => toggleOfflineFriends(ShowOfflineFriendsCheckbox.checked))
-    document.getElementById("friends-label").innerHTML = "Friends (" + f.length + ")"
+    document.getElementById("friends-label").textContent = "Friends (" + f.length + ")"
     HomeFriendRequestsListLeftButton.addEventListener("click", () => FriendRequestsList.scrollLeft -= 400)
     HomeFriendRequestsListRightButton.addEventListener("click", () => FriendRequestsList.scrollLeft += 400)
     let fr = localUser.FriendRequests
@@ -320,7 +320,7 @@ function setupFriends(){
             }
         })
     }
-    document.getElementById("friend-requests-label").innerHTML = "Friend Requests (" + fr.length + ")"
+    document.getElementById("friend-requests-label").textContent = "Friend Requests (" + fr.length + ")"
     if(fr.length <= 0){
         HomeFriendRequestsListLeftButton.hidden = true
         HomeFriendRequestsListRightButton.hidden = true
@@ -359,7 +359,7 @@ function emailCheck(){
         })
     }
     else{
-        document.getElementById("email-verification-status").innerHTML = "Email Verification Status: Verified"
+        document.getElementById("email-verification-status").textContent = "Email Verification Status: Verified"
         document.getElementById("verify-email-button").hidden = true
     }
 }
@@ -423,7 +423,7 @@ function setupSettingsTab(userdata, token){
         }
     })
     if(userdata.is2FAVerified){
-        document.getElementById("2fa-status-text").innerHTML = "2FA Status: Enabled"
+        document.getElementById("2fa-status-text").textContent = "2FA Status: Enabled"
         TabContents.Settings.Enter2FAWizard.hidden = true
     }
     else
@@ -439,7 +439,7 @@ function setupSettingsTab(userdata, token){
             HypernexAPI.Users.enable2fa(userdata.Id, token.content).then(url => {
                 if(url){
                     qrcode.makeCode(url)
-                    TabContents.Settings.TwoFAUrl.innerHTML = url
+                    TabContents.Settings.TwoFAUrl.textContent = url
                     TabContents.Settings.TwoFAUrl.href = url
                     TabContents.Settings.TwoFAWizard.hidden = false
                 }
@@ -549,15 +549,15 @@ function createFriendCard(user){
         bio.PfpURL = "media/defaultpfp.jpg"
     pfpImg.src = bio.PfpURL
     statusIcon.style.backgroundColor = getColorFromStatus(bio.Status)
-    statusText.innerHTML = getTextFromStatus(bio.Status)
+    statusText.textContent = getTextFromStatus(bio.Status)
     if(bio.DisplayName !== undefined && bio.DisplayName !== "")
-        usernameText.innerHTML = bio.DisplayName
+        usernameText.textContent = bio.DisplayName
     else
-        usernameText.innerHTML = "@" + user.Username
+        usernameText.textContent = "@" + user.Username
     if(bio.StatusText !== undefined && bio.StatusText !== "" && bio.Status !== HypernexAPI.Users.Status.Offline)
-        statusText.innerHTML = getShortenedText(bio.StatusText)
+        statusText.textContent = getShortenedText(bio.StatusText)
     if(bio.Pronouns !== undefined){
-        pronounText.innerHTML = getTextForPronouns(bio.Pronouns)
+        pronounText.textContent = getTextForPronouns(bio.Pronouns)
         pronounText.hidden = false
     }
     friendCard.hidden = false
@@ -589,15 +589,15 @@ function createFriendRequestCard(user){
         bio.PfpURL = "media/defaultpfp.jpg"
     pfpImg.src = bio.PfpURL
     statusIcon.style.backgroundColor = getColorFromStatus(bio.Status)
-    statusText.innerHTML = getTextFromStatus(bio.Status)
+    statusText.textContent = getTextFromStatus(bio.Status)
     if(bio.DisplayName !== undefined && bio.DisplayName !== "")
-        usernameText.innerHTML = bio.DisplayName
+        usernameText.textContent = bio.DisplayName
     else
-        usernameText.innerHTML = "@" + user.Username
+        usernameText.textContent = "@" + user.Username
     if(bio.StatusText !== undefined && bio.StatusText !== "" && bio.Status !== HypernexAPI.Users.Status.Offline)
-        statusText.innerHTML = getShortenedText(bio.StatusText)
+        statusText.textContent = getShortenedText(bio.StatusText)
     if(bio.Pronouns !== undefined){
-        pronounText.innerHTML = getTextForPronouns(bio.Pronouns)
+        pronounText.textContent = getTextForPronouns(bio.Pronouns)
         pronounText.hidden = false
     }
     friendCard.hidden = false
@@ -716,9 +716,9 @@ function setupModPage(){
         HypernexAPI.Users.getUserFromUserId(modUserIdInput.value).then(user => {
             if(user !== undefined){
                 modSelectedUser = user
-                modSelectedUserText.innerHTML = "Selected User: " + modSelectedUser.Username + " (" + modSelectedUser.Id + ")"
-                badgesText.innerHTML = "Badges: " + webtools.arrayToString(modSelectedUser.Badges)
-                modCurrentRankText.innerHTML = "User Rank: " + webtools.parseRank(modSelectedUser.Rank)
+                modSelectedUserText.textContent = "Selected User: " + modSelectedUser.Username + " (" + modSelectedUser.Id + ")"
+                badgesText.textContent = "Badges: " + webtools.arrayToString(modSelectedUser.Badges)
+                modCurrentRankText.textContent = "User Rank: " + webtools.parseRank(modSelectedUser.Rank)
             }
             else{
                 window.sendSweetAlert({
