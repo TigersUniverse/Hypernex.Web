@@ -13,7 +13,8 @@
 const API_CONFIGURATION = {
     "OverrideAPI": false,
     "IsSecure": true,
-    "APIDomain": ""
+    "APIDomain": "",
+    "DiscourseUrl": "https://forum.hypernex.dev/"
 }
 
 /*
@@ -115,6 +116,26 @@ export const Users = {
                 }
                 else
                     reject(new Error("Failed to logout"))
+            }).catch(err => {
+                throw err
+            })
+        })
+    },
+    validateDiscourse: function (payload, sig, userid, tokenContent) {
+        return new Promise((exec, reject) => {
+            let req = {
+                userid: userid,
+                tokenContent: tokenContent,
+                sig: sig,
+                payload: payload
+            }
+            xhrtools.POST(getAPIEndpoint() + "discourse", req).then(r => {
+                let json = handleRes(r)
+                if(json && json.success){
+                    exec(json.result.urlAppend)
+                }
+                else
+                    reject(new Error("Failed to login"))
             }).catch(err => {
                 throw err
             })
@@ -829,6 +850,10 @@ export const Moderation = {
             }).catch(err => reject(err))
         })
     }
+}
+
+exports.GetConfig = function () {
+    return API_CONFIGURATION
 }
 
 if(API_CONFIGURATION.OverrideAPI){
