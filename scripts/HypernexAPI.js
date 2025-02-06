@@ -852,7 +852,7 @@ export const Moderation = {
     }
 }
 
-exports.GetConfig = function () {
+export function GetConfig() {
     return API_CONFIGURATION
 }
 

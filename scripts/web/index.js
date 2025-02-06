@@ -248,12 +248,15 @@ SignupCard.hidden = true
 StatusCard.hidden = true
 Login2FA.hidden = true
 let loginInfo = webtools.getCachedUser()
+let tokenInfo = webtools.getCachedToken()
 const urlParams = new URLSearchParams(window.location.search)
-let sso = urlParams.get("sso")
-let payload = urlParams.get("payload")
+let hasPayload = urlParams.has("sso")
+let payload = urlParams.get("sso")
+let hasSig = urlParams.has("sig")
+let sig = urlParams.get("sig")
 if(loginInfo !== undefined) {
-    if(sso !== undefined && payload !== undefined){
-        HypernexAPI.Users.validateDiscourse(payload, sso, loginInfo.userdata.Id, loginInfo.token.content).then(urlAppend => {
+    if(hasPayload && hasSig){
+        HypernexAPI.Users.validateDiscourse(payload, sig, loginInfo.Id, tokenInfo.content).then(urlAppend => {
             window.location = HypernexAPI.GetConfig().DiscourseUrl + "session/sso_login?" + urlAppend
         }).catch(_ => {
             window.sendSweetAlert({
@@ -266,11 +269,12 @@ if(loginInfo !== undefined) {
         window.location = "dashboard"
 }
 else{
-    if(sso === undefined || payload === undefined)
+    if(hasSig && hasPayload){
         window.sendSweetAlert({
             icon: 'error',
-            title: 'Failed to login with Discourse! Are you signed in?'
+            title: 'Not logged in! Please sign in and try again.'
         })
+    }
     HypernexAPI.Users.isInviteCodeRequired().then(r => {
         if(r === null){
             SignupInviteCode.hidden = true
