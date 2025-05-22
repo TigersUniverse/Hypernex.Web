@@ -247,9 +247,34 @@ ResetPasswordButton.addEventListener("click", () => {
 SignupCard.hidden = true
 StatusCard.hidden = true
 Login2FA.hidden = true
-if(webtools.getCachedUser() !== undefined)
-    window.location = "dashboard"
-else
+let loginInfo = webtools.getCachedUser()
+let tokenInfo = webtools.getCachedToken()
+const urlParams = new URLSearchParams(window.location.search)
+let hasPayload = urlParams.has("sso")
+let payload = urlParams.get("sso")
+let hasSig = urlParams.has("sig")
+let sig = urlParams.get("sig")
+if(loginInfo !== undefined) {
+    if(hasPayload && hasSig){
+        HypernexAPI.Users.validateDiscourse(payload, sig, loginInfo.Id, tokenInfo.content).then(urlAppend => {
+            window.location = HypernexAPI.GetConfig().DiscourseUrl + "session/sso_login?" + urlAppend
+        }).catch(_ => {
+            window.sendSweetAlert({
+                icon: 'error',
+                title: 'Server failed to process login with Discourse!'
+            })
+        })
+    }
+    else
+        window.location = "dashboard"
+}
+else{
+    if(hasSig && hasPayload){
+        window.sendSweetAlert({
+            icon: 'error',
+            title: 'Not logged in! Please sign in and try again.'
+        })
+    }
     HypernexAPI.Users.isInviteCodeRequired().then(r => {
         if(r === null){
             SignupInviteCode.hidden = true
@@ -257,6 +282,7 @@ else
         }
         SignupInviteCode.hidden = !r;
     })
+}
 
 const ACCEPTABLE_CHARACTERS_IN_USERNAME = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
     "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F",
