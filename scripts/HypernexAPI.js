@@ -25,10 +25,13 @@ const API_CONFIGURATION = {
  */
 
 import * as xhrtools from './xhrtools.js'
+import * as geotools from './geotools.js'
 
 const _url = new URL(window.location)
 export let BASE_URL = _url.protocol + "//" + _url.host + '/'
 const API_VERSION = "v1"
+
+let cdn
 
 export function getAPIEndpoint(){
     return BASE_URL + "api/" + API_VERSION + "/"
@@ -73,6 +76,17 @@ export const Info = {
                     })
                 else
                     reject(new Error("Failed to get UnityVersion"))
+            }).catch(err => reject(err))
+        })
+    },
+    GetCDNs: function(){
+        return new Promise((exec, reject) => {
+            xhrtools.GET(getAPIEndpoint() + "getCDNs").then(r => {
+                let json = handleRes(r)
+                if(json.success)
+                    exec(json.result.servers)
+                else
+                    reject(new Error("Failed to get CDNs"))
             }).catch(err => reject(err))
         })
     }
@@ -732,7 +746,7 @@ export const File = {
             formData.append('userid', userid)
             formData.append('tokenContent', tokenContent)
             formData.append('file', file, file.name)
-            xhrtools.POSTfile(getAPIEndpoint() + "upload", formData).then(r => {
+            xhrtools.POSTfile(cdn + "upload", formData).then(r => {
                 let json = handleRes(r)
                 if(json && json.success)
                     exec(json.result.UploadData)
@@ -860,3 +874,6 @@ if(API_CONFIGURATION.OverrideAPI){
     let h = API_CONFIGURATION.IsSecure ? "https://" : "http://"
     BASE_URL = h + API_CONFIGURATION.APIDomain + '/'
 }
+
+let cdns = await Info.GetCDNs()
+cdn = await geotools.findClosestServer(cdns)
