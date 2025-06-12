@@ -17,6 +17,25 @@ const API_CONFIGURATION = {
     "DiscourseUrl": "https://forum.hypernex.dev/"
 }
 
+export const GITHUB_DOWNLOADS = {
+    "Hypernex.Unity": {
+        "Repo": "TigersUniverse/Hypernex.Unity",
+        "Files": ["Hypernex_win-x64.zip"]
+    },
+    "Hypernex.Launcher": {
+        "Repo": "TigersUniverse/Hypernex.Launcher",
+        "Files": ["Hypernex.Launcher.exe"]
+    },
+    "Hypernex.Networking.Server": {
+        "Repo": "TigersUniverse/Hypernex.Networking",
+        "Files": ["Hypernex.Networking.Server.zip"]
+    },
+    "Hypernex.CCK": {
+        "Repo": "TigersUniverse/Hypernex.CCK",
+        "InstallGuide": "https://docs.hypernex.dev/docs/nexademy/intro/cck"
+    }
+}
+
 /*
  * DO NOT EDIT ANYTHING PAST HERE UNLESS YOU KNOW WHAT YOU ARE DOING!
  *
