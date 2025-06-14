@@ -1,6 +1,7 @@
 import * as HypernexAPI from '../../HypernexAPI.js'
 import * as webtools from '../../webtools.js'
 import * as datetools from '../../datetools.js'
+import * as githubtools from '../../githubtools.js'
 import {
     default as user,
     viewProfile,
@@ -230,25 +231,20 @@ function onDownloadedFileFromPOST(r){
 function initDownloadButton(button, name, artifact, display){
     if(display === undefined)
         display = name
-    HypernexAPI.File.GetVersions(name).then(r => {
-        if(r.Versions.length <= 0)
-            return;
-        let latest = r.Versions[0]
-        button.textContent = "Download " + display + " (" + latest + ")"
-    })
-    button.addEventListener("click", () => {
-        HypernexAPI.File.GetVersions(name).then(versions => {
-            if(versions.Versions.length <= 0)
-                return;
-            let latestVersion = versions.Versions[0]
-            HypernexAPI.File.AuthForBuilds().then(authRequired => {
-                if(authRequired)
-                    HypernexAPI.File.GetBuild(name, latestVersion, artifact, webtools.getCachedUser().Id, webtools.getCachedToken().content).then(onDownloadedFileFromPOST).catch()
-                else
-                    HypernexAPI.File.GetBuild(name, latestVersion, artifact).then(onDownloadedFileFromPOST).catch()
-            })
-        })
-    })
+   const currentModal = HypernexAPI.GITHUB_DOWNLOADS[name]
+   if(currentModal === undefined){
+        button.hidden = true
+        return
+   }
+   githubtools.GetVersion(currentModal["Repo"]).then(v => button.textContent = "Download " + display + " (" + v + ")")
+   let redirUrl = currentModal["InstallGuide"]
+    if(redirUrl === undefined)
+        redirUrl = githubtools.GetLatestBuildUrl(currentModal["Repo"], currentModal["Files"][artifact])
+    if(redirUrl === undefined){
+        button.hidden = true
+        return;
+    }
+   button.addEventListener("click", () => window.open(redirUrl, '_blank'))
 }
 
 function setupDownloads(){
