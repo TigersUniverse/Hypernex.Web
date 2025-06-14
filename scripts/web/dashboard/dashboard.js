@@ -240,6 +240,10 @@ function initDownloadButton(button, name, artifact, display){
    let redirUrl = currentModal["InstallGuide"]
     if(redirUrl === undefined)
         redirUrl = githubtools.GetLatestBuildUrl(currentModal["Repo"], currentModal["Files"][artifact])
+    if(redirUrl === undefined){
+        button.hidden = true
+        return;
+    }
    button.addEventListener("click", () => window.open(redirUrl, '_blank'))
 }
 
@@ -254,7 +258,7 @@ function setupDownloads(){
                 b.addEventListener("click", () => window.location = "unityhub://" + gameEngineObject.GameEngineVersion)
                 b.textContent = "Download Unity " + gameEngineObject.GameEngineVersion + " in Unity Hub"
                 initDownloadButton(document.getElementById("download-hypernex.client"), "Hypernex.Unity", 0, "Hypernex.Unity for Windows")
-                //initDownloadButton(document.getElementById("download-hypernex.client-android"), "Hypernex.Unity", 1, "Hypernex.Unity for Android")
+                initDownloadButton(document.getElementById("download-hypernex.client-android"), "Hypernex.Unity", 1, "Hypernex.Unity for Android")
                 initDownloadButton(document.getElementById("download-hypernex.cck"), "Hypernex.CCK", 0)
                 break
             case "godot":
