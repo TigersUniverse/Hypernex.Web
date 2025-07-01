@@ -57,8 +57,16 @@ export async function findClosestServer(servers){
     let ips = []
     for (let server of servers){
         let url = new URL(server)
-        if(isLocal(url.hostname))
-            return server
+        if(isLocal(url.hostname)){
+            ips.push({
+                Server: server,
+                URL: url,
+                IP: url.hostname,
+                Latitude: 0,
+                Longitude: 0
+            })
+            continue
+        }
         let ip = await getIpFromHostname(url.hostname)
         let geoData = await getLocationInfo(ip)
         ips.push({

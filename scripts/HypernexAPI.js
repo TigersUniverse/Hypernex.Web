@@ -765,7 +765,7 @@ export const File = {
             formData.append('userid', userid)
             formData.append('tokenContent', tokenContent)
             formData.append('file', file, file.name)
-            xhrtools.POSTfile(cdn + "upload", formData).then(r => {
+            xhrtools.POSTfile(cdn.Server + "upload", formData).then(r => {
                 let json = handleRes(r)
                 if(json && json.success)
                     exec(json.result.UploadData)
